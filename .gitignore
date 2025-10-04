@@ -222,3 +222,4 @@ media/
 
 # If you have multiple apps (client, server), you can put ignores above or have separate .gitignore in subfolders
 
+node_modules/
