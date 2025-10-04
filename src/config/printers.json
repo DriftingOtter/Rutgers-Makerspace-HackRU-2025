@@ -1,0 +1,141 @@
+{
+  "printers": [
+    {
+      "id": "bambu-x1-carbon",
+      "name": "Bambu Lab X1 Carbon Combo",
+      "manufacturer": "Bambu Lab",
+      "type": "FDM",
+      "maxBuildVolume": {
+        "x": 256,
+        "y": 256,
+        "z": 256
+      },
+      "supportedMaterials": [
+        "PLA",
+        "PETG",
+        "ABS",
+        "TPU",
+        "ASA",
+        "PC",
+        "PA",
+        "PVA"
+      ],
+      "features": [
+        "Multi-color printing",
+        "Auto bed leveling",
+        "Enclosed chamber",
+        "High-speed printing",
+        "Carbon fiber reinforced"
+      ],
+      "defaultSettings": {
+        "layerHeight": "0.2mm",
+        "nozzleTemp": "220C",
+        "bedTemp": "60C",
+        "printSpeed": "60mm/s"
+      },
+      "hourlyRate": 2.50,
+      "materialCostMultiplier": 1.0
+    },
+    {
+      "id": "prusa-mk4",
+      "name": "Prusa MK4",
+      "manufacturer": "Prusa Research",
+      "type": "FDM",
+      "maxBuildVolume": {
+        "x": 250,
+        "y": 210,
+        "z": 220
+      },
+      "supportedMaterials": [
+        "PLA",
+        "PETG",
+        "ABS",
+        "ASA",
+        "TPU",
+        "PC",
+        "PA"
+      ],
+      "features": [
+        "Auto bed leveling",
+        "Reliable printing",
+        "Open source",
+        "High precision"
+      ],
+      "defaultSettings": {
+        "layerHeight": "0.2mm",
+        "nozzleTemp": "215C",
+        "bedTemp": "60C",
+        "printSpeed": "50mm/s"
+      },
+      "hourlyRate": 2.00,
+      "materialCostMultiplier": 1.0
+    },
+    {
+      "id": "ultimaker-s5",
+      "name": "Ultimaker S5",
+      "manufacturer": "Ultimaker",
+      "type": "FDM",
+      "maxBuildVolume": {
+        "x": 330,
+        "y": 240,
+        "z": 300
+      },
+      "supportedMaterials": [
+        "PLA",
+        "PETG",
+        "ABS",
+        "ASA",
+        "TPU",
+        "PC",
+        "PA",
+        "PVA",
+        "Breakaway"
+      ],
+      "features": [
+        "Dual extrusion",
+        "Large build volume",
+        "Professional grade",
+        "Material station"
+      ],
+      "defaultSettings": {
+        "layerHeight": "0.2mm",
+        "nozzleTemp": "230C",
+        "bedTemp": "70C",
+        "printSpeed": "45mm/s"
+      },
+      "hourlyRate": 3.00,
+      "materialCostMultiplier": 1.2
+    },
+    {
+      "id": "formlabs-form3",
+      "name": "Formlabs Form 3",
+      "manufacturer": "Formlabs",
+      "type": "SLA",
+      "maxBuildVolume": {
+        "x": 145,
+        "y": 145,
+        "z": 185
+      },
+      "supportedMaterials": [
+        "Standard Resin",
+        "Tough Resin",
+        "Flexible Resin",
+        "Dental Resin",
+        "Clear Resin"
+      ],
+      "features": [
+        "High resolution",
+        "Smooth surface finish",
+        "Dental applications",
+        "Jewelry making"
+      ],
+      "defaultSettings": {
+        "layerHeight": "0.05mm",
+        "exposureTime": "8s",
+        "liftSpeed": "3mm/min"
+      },
+      "hourlyRate": 4.00,
+      "materialCostMultiplier": 2.5
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "materials": {
+    "PLA": {
+      "costPerGram": 0.08,
+      "density": 1.24,
+      "properties": {
+        "strength": "medium",
+        "flexibility": "low",
+        "temperatureResistance": "low",
+        "chemicalResistance": "low",
+        "biodegradable": true
+      },
+      "recommendedFor": [
+        "prototyping",
+        "educational projects",
+        "decorative items",
+        "low-stress applications"
+      ]
+    },
+    "PETG": {
+      "costPerGram": 0.12,
+      "density": 1.27,
+      "properties": {
+        "strength": "high",
+        "flexibility": "medium",
+        "temperatureResistance": "medium",
+        "chemicalResistance": "high",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "functional parts",
+        "food containers",
+        "outdoor applications",
+        "mechanical components"
+      ]
+    },
+    "ABS": {
+      "costPerGram": 0.10,
+      "density": 1.04,
+      "properties": {
+        "strength": "high",
+        "flexibility": "medium",
+        "temperatureResistance": "high",
+        "chemicalResistance": "high",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "automotive parts",
+        "electronics enclosures",
+        "high-temperature applications",
+        "structural components"
+      ]
+    },
+    "TPU": {
+      "costPerGram": 0.25,
+      "density": 1.20,
+      "properties": {
+        "strength": "medium",
+        "flexibility": "very high",
+        "temperatureResistance": "medium",
+        "chemicalResistance": "high",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "phone cases",
+        "gaskets",
+        "shock absorption",
+        "flexible joints"
+      ]
+    },
+    "ASA": {
+      "costPerGram": 0.15,
+      "density": 1.07,
+      "properties": {
+        "strength": "high",
+        "flexibility": "low",
+        "temperatureResistance": "high",
+        "chemicalResistance": "very high",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "outdoor applications",
+        "automotive parts",
+        "UV-resistant components",
+        "structural parts"
+      ]
+    },
+    "PC": {
+      "costPerGram": 0.30,
+      "density": 1.20,
+      "properties": {
+        "strength": "very high",
+        "flexibility": "low",
+        "temperatureResistance": "very high",
+        "chemicalResistance": "high",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "engineering prototypes",
+        "high-stress applications",
+        "transparent parts",
+        "medical devices"
+      ]
+    },
+    "PA": {
+      "costPerGram": 0.35,
+      "density": 1.14,
+      "properties": {
+        "strength": "very high",
+        "flexibility": "medium",
+        "temperatureResistance": "very high",
+        "chemicalResistance": "very high",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "engineering applications",
+        "high-performance parts",
+        "chemical-resistant components",
+        "structural applications"
+      ]
+    },
+    "Standard Resin": {
+      "costPerGram": 0.20,
+      "density": 1.10,
+      "properties": {
+        "strength": "medium",
+        "flexibility": "low",
+        "temperatureResistance": "low",
+        "chemicalResistance": "medium",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "detailed models",
+        "jewelry",
+        "miniatures",
+        "high-detail prototypes"
+      ]
+    },
+    "Tough Resin": {
+      "costPerGram": 0.35,
+      "density": 1.15,
+      "properties": {
+        "strength": "high",
+        "flexibility": "medium",
+        "temperatureResistance": "medium",
+        "chemicalResistance": "high",
+        "biodegradable": false
+      },
+      "recommendedFor": [
+        "functional prototypes",
+        "mechanical parts",
+        "engineering models",
+        "durable components"
+      ]
+    }
+  },
+  "pricingRules": {
+    "baseSetupFee": 2.00,
+    "minimumCharge": 5.00,
+    "complexityMultipliers": {
+      "simple": 1.0,
+      "medium": 1.2,
+      "complex": 1.5,
+      "very_complex": 2.0
+    },
+    "supportMultiplier": 1.3,
+    "postProcessingMultiplier": 1.2,
+    "rushOrderMultiplier": 1.5
+  },
+  "colorOptions": {
+    "standard": ["Black", "White", "Grey", "Red", "Blue", "Green", "Yellow"],
+    "premium": ["Metallic", "Glow-in-dark", "Wood-filled", "Carbon-fiber"],
+    "premiumMultiplier": 1.5
+  }
+}
