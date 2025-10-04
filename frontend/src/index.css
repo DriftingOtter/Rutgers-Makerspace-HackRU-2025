@@ -1,0 +1,53 @@
+/* Rutgers Makerspace Inspired Global Styles */
+
+body {
+  margin: 0;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #fff;
+  color: #333;
+  line-height: 1.6;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Global Link Styles */
+a {
+  color: #d32f2f;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Global Heading Styles */
+h1, h2, h3, h4, h5, h6 {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+}
+
+/* Global Paragraph Styles */
+p {
+  margin-bottom: 1rem;
+}
+
+/* Global List Styles */
+ul, ol {
+  margin-bottom: 1rem;
+}
+
+/* Global Form Styles */
+input, textarea, select {
+  font-family: inherit;
+}
+
+/* Global Focus Styles */
+*:focus {
+  outline: 2px solid #d32f2f;
+  outline-offset: 2px;
+}

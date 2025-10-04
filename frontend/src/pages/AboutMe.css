@@ -1,0 +1,49 @@
+/* Rutgers Makerspace Inspired About Me Page CSS */
+
+.about-me {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  padding: 3rem 0;
+  flex: 1;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* About Section */
+.about-section {
+  margin-bottom: 3rem;
+}
+
+.about-section h1 {
+  font-size: 2.5rem;
+  color: #d32f2f;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.about-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-text p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-section h1 {
+    font-size: 2rem;
+  }
+}

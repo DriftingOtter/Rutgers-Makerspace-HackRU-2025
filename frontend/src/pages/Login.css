@@ -1,0 +1,137 @@
+/* Rutgers Makerspace Inspired Login Page CSS */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  padding: 3rem 0;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Login Section */
+.login-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.login-container {
+  background: #fff;
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  border-top: 4px solid #d32f2f;
+}
+
+.login-container h1 {
+  color: #d32f2f;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.login-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.login-form {
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #d32f2f;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: #d32f2f;
+  color: #fff;
+  border: 2px solid #d32f2f;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #b71c1c;
+  border-color: #b71c1c;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.login-note {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.login-note small {
+  color: #999;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 2rem;
+    margin: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 1.5rem;
+  }
+}
