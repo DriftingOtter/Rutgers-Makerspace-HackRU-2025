@@ -129,10 +129,10 @@ class PrintRequestController {
     async #analyzeWithGemini(printRequest) {
         try {
             const analysis = await this.#geminiAdapter.analyzeProject(
-                printRequest.projectDescription,
+                printRequest.description,
                 printRequest.renderImages,
-                printRequest.preferredMaterial,
-                printRequest.preferredColor
+                printRequest.material,
+                printRequest.color
             );
 
             return {
@@ -149,7 +149,7 @@ class PrintRequestController {
             console.error('Gemini analysis failed:', error.message);
             // Return fallback analysis
             return {
-                recommendedMaterial: printRequest.preferredMaterial || 'PLA',
+                recommendedMaterial: printRequest.material || 'PLA',
                 complexity: 'medium',
                 supportsNeeded: true,
                 volumeCategory: 'medium',
@@ -190,10 +190,10 @@ class PrintRequestController {
      */
     #getMaterialRecommendation(printRequest, geminiAnalysis) {
         const recommendation = this.#materialAdvisor.recommendMaterial(
-            printRequest.projectDescription,
+            printRequest.description,
             printRequest.preferredMaterial,
-            this.#determineProjectType(printRequest.projectDescription),
-            this.#extractRequirements(printRequest.projectDescription)
+            this.#determineProjectType(printRequest.description),
+            this.#extractRequirements(printRequest.description)
         );
 
         // Override with Gemini recommendation if confidence is high
@@ -348,7 +348,7 @@ class PrintRequestController {
                     email: printRequest.email
                 },
                 project: {
-                    description: printRequest.projectDescription,
+                    description: printRequest.description,
                     fileLink: printRequest.fileLink,
                     complexity: geminiAnalysis.complexity,
                     confidence: geminiAnalysis.confidence
@@ -397,7 +397,7 @@ class PrintRequestController {
             timestamp: new Date().toISOString(),
             requestData: {
                 netID: requestData.netID,
-                projectDescription: requestData.projectDescription?.substring(0, 100) + '...'
+                projectDescription: requestData.description?.substring(0, 100) + '...'
             }
         };
 
@@ -521,7 +521,7 @@ class PrintRequestController {
                 printRequest.specialInstructions || '',
                 requestData.file?.name || '',
                 requestData.file?.size || 0,
-                requestData.file?.name?.split('.').pop()?.toLowerCase() || 'stl',
+                (requestData.file?.name ? requestData.file.name.split('.').pop()?.toLowerCase() : null) || 'stl',
                 requestData.file ? `https://storage.example.com/files/${requestData.file.name}` : '',
                 null, // model_url
                 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop', // fallback_image_url
@@ -539,6 +539,114 @@ class PrintRequestController {
         } catch (error) {
             console.error('Failed to save print request to database:', error.message);
             // Don't throw error - we don't want to fail the request if DB save fails
+        }
+    }
+
+    /**
+     * Get detailed print request information by ID
+     * @param {string} requestId - The request ID to fetch
+     * @returns {Object} Detailed print request data
+     */
+    async getPrintRequestDetails(requestId) {
+        try {
+            const snowflakeClient = require('../database/snowflakeClient');
+            
+            // Query the database for the specific print request
+            const query = `
+                SELECT 
+                    request_id,
+                    user_name,
+                    user_email,
+                    project_name,
+                    description,
+                    material,
+                    color,
+                    quantity,
+                    urgency,
+                    special_instructions,
+                    file_name,
+                    file_size,
+                    file_type,
+                    file_url,
+                    model_url,
+                    fallback_image_url,
+                    status,
+                    estimated_cost,
+                    recommended_printer_id,
+                    print_settings,
+                    is_public,
+                    created_at,
+                    updated_at
+                FROM print_requests 
+                WHERE request_id = ?
+            `;
+            
+            const results = await snowflakeClient.execute(query, [requestId]);
+            
+            if (results.length === 0) {
+                return {
+                    status: 'error',
+                    message: 'Print request not found',
+                    code: 404
+                };
+            }
+            
+            const request = results[0];
+            
+            // Parse print settings if they exist
+            let printSettings = {};
+            if (request.PRINT_SETTINGS) {
+                try {
+                    printSettings = JSON.parse(request.PRINT_SETTINGS);
+                } catch (e) {
+                    console.warn('Failed to parse print settings:', e.message);
+                }
+            }
+            
+            return {
+                status: 'success',
+                data: {
+                    id: request.REQUEST_ID,
+                    user: {
+                        name: request.USER_NAME,
+                        email: request.USER_EMAIL
+                    },
+                    project: {
+                        name: request.PROJECT_NAME,
+                        description: request.DESCRIPTION,
+                        material: request.MATERIAL,
+                        color: request.COLOR,
+                        quantity: request.QUANTITY,
+                        urgency: request.URGENCY,
+                        specialInstructions: request.SPECIAL_INSTRUCTIONS
+                    },
+                    file: {
+                        name: request.FILE_NAME,
+                        size: request.FILE_SIZE,
+                        type: request.FILE_TYPE,
+                        url: request.FILE_URL,
+                        modelUrl: request.MODEL_URL,
+                        fallbackImage: request.FALLBACK_IMAGE_URL
+                    },
+                    status: request.STATUS,
+                    cost: request.ESTIMATED_COST,
+                    printer: {
+                        id: request.RECOMMENDED_PRINTER_ID,
+                        settings: printSettings
+                    },
+                    isPublic: request.IS_PUBLIC,
+                    createdAt: request.CREATED_AT,
+                    updatedAt: request.UPDATED_AT
+                }
+            };
+            
+        } catch (error) {
+            console.error('Failed to fetch print request details:', error.message);
+            return {
+                status: 'error',
+                message: 'Failed to fetch print request details',
+                code: 500
+            };
         }
     }
 }

@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
     // Check for admin user first
     const adminUser = getAdminUser();
     if (adminUser) {
+      console.log('AuthContext: Found admin user', adminUser);
       setUser(adminUser);
       setLoading(false);
       return;
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }) => {
 
     // Then check Firebase auth
     const unsubscribe = onAuthStateChange((firebaseUser) => {
+      console.log('AuthContext: Firebase auth state changed', firebaseUser);
       setUser(firebaseUser);
       setLoading(false);
       setError(null);

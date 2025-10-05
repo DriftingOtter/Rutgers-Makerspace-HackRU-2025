@@ -4,44 +4,56 @@
  * Encapsulates all user input data and provides validation and accessor methods.
  */
 class PrintRequest {
+    #projectName;
+    #description;
+    #material;
+    #color;
+    #quantity;
+    #urgency;
+    #specialInstructions;
+    #file;
+    #userEmail;
+    #userName;
+    #renderImages;
+    #timestamp;
+    #requestId;
     #firstName;
     #lastName;
     #netID;
-    #email;
     #phone;
+    #email;
     #projectDescription;
     #fileLink;
     #preferredMaterial;
     #preferredColor;
-    #renderImages;
-    #timestamp;
-    #requestId;
 
     /**
      * Creates a new PrintRequest instance
      * @param {Object} requestData - The request data object
-     * @param {string} requestData.firstName - User's first name
-     * @param {string} requestData.lastName - User's last name
-     * @param {string} requestData.netID - Rutgers NetID
-     * @param {string} requestData.email - User's email address
-     * @param {string} requestData.phone - User's phone number
-     * @param {string} requestData.projectDescription - Description of the project
-     * @param {string} requestData.fileLink - URL to the 3D model file
-     * @param {string} requestData.preferredMaterial - Preferred printing material
-     * @param {string} requestData.preferredColor - Preferred color
+     * @param {string} requestData.projectName - Project name
+     * @param {string} requestData.description - Description of the project
+     * @param {string} requestData.material - Preferred printing material
+     * @param {string} requestData.color - Preferred color
+     * @param {number} requestData.quantity - Quantity to print
+     * @param {string} requestData.urgency - Urgency level
+     * @param {string} requestData.specialInstructions - Special instructions
+     * @param {Object} requestData.file - File object
+     * @param {string} requestData.userEmail - User's email address
+     * @param {string} requestData.userName - User's name
      * @param {string[]} requestData.renderImages - Array of render image URLs
      */
     constructor(requestData) {
         this.#validateInput(requestData);
-        this.#firstName = requestData.firstName;
-        this.#lastName = requestData.lastName;
-        this.#netID = requestData.netID;
-        this.#email = requestData.email;
-        this.#phone = requestData.phone;
-        this.#projectDescription = requestData.projectDescription;
-        this.#fileLink = requestData.fileLink;
-        this.#preferredMaterial = requestData.preferredMaterial;
-        this.#preferredColor = requestData.preferredColor;
+        this.#projectName = requestData.projectName;
+        this.#description = requestData.description;
+        this.#material = requestData.material;
+        this.#color = requestData.color;
+        this.#quantity = parseInt(requestData.quantity) || 1;
+        this.#urgency = requestData.urgency;
+        this.#specialInstructions = requestData.specialInstructions || '';
+        this.#file = requestData.file;
+        this.#userEmail = requestData.userEmail;
+        this.#userName = requestData.userName;
         this.#renderImages = Array.isArray(requestData.renderImages) ? [...requestData.renderImages] : [];
         this.#timestamp = new Date().toISOString();
         this.#requestId = this.#generateRequestId();
@@ -59,38 +71,29 @@ class PrintRequest {
         }
 
         const requiredFields = [
-            'firstName', 'lastName', 'netID', 'email', 'phone',
-            'projectDescription', 'fileLink', 'preferredMaterial', 'preferredColor'
+            'projectName', 'description', 'material', 'color', 'quantity', 'urgency', 'userEmail', 'userName'
         ];
 
         for (const field of requiredFields) {
-            if (!requestData[field] || typeof requestData[field] !== 'string') {
-                throw new Error(`Missing or invalid ${field}: must be a non-empty string.`);
+            if (!requestData[field]) {
+                throw new Error(`Missing or invalid ${field}: must be provided.`);
             }
         }
 
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(requestData.email)) {
+        if (!emailRegex.test(requestData.userEmail)) {
             throw new Error('Invalid email format provided.');
         }
 
-        // Validate NetID format (Rutgers specific)
-        const netIDRegex = /^[a-z]{2,3}\d{2,3}$/i;
-        if (!netIDRegex.test(requestData.netID)) {
-            throw new Error('Invalid NetID format: must be 2-3 letters followed by 2-3 digits.');
+        // Validate file object
+        if (!requestData.file || typeof requestData.file !== 'object') {
+            throw new Error('File must be a valid file object.');
         }
 
-        // Validate phone format
-        const phoneRegex = /^[\d\s\-\(\)\+]+$/;
-        if (!phoneRegex.test(requestData.phone)) {
-            throw new Error('Invalid phone number format.');
-        }
-
-        // Validate file link format
-        const urlRegex = /^https?:\/\/.+/;
-        if (!urlRegex.test(requestData.fileLink)) {
-            throw new Error('File link must be a valid HTTP/HTTPS URL.');
+        // Validate quantity
+        if (isNaN(parseInt(requestData.quantity)) || parseInt(requestData.quantity) < 1) {
+            throw new Error('Quantity must be a positive number.');
         }
     }
 
@@ -106,54 +109,55 @@ class PrintRequest {
     }
 
     // Getters
-    get firstName() { return this.#firstName; }
-    get lastName() { return this.#lastName; }
-    get netID() { return this.#netID; }
-    get email() { return this.#email; }
-    get phone() { return this.#phone; }
-    get projectDescription() { return this.#projectDescription; }
-    get fileLink() { return this.#fileLink; }
-    get preferredMaterial() { return this.#preferredMaterial; }
-    get preferredColor() { return this.#preferredColor; }
+    get projectName() { return this.#projectName; }
+    get description() { return this.#description; }
+    get material() { return this.#material; }
+    get color() { return this.#color; }
+    get quantity() { return this.#quantity; }
+    get urgency() { return this.#urgency; }
+    get specialInstructions() { return this.#specialInstructions; }
+    get file() { return this.#file; }
+    get userEmail() { return this.#userEmail; }
+    get userName() { return this.#userName; }
     get renderImages() { return [...this.#renderImages]; }
     get timestamp() { return this.#timestamp; }
     get requestId() { return this.#requestId; }
 
     // Setters with validation
-    set firstName(name) {
+    set projectName(name) {
         if (!name || typeof name !== 'string') {
-            throw new Error('First name must be a non-empty string.');
+            throw new Error('Project name must be a non-empty string.');
         }
-        this.#firstName = name;
+        this.#projectName = name;
     }
 
-    set lastName(name) {
-        if (!name || typeof name !== 'string') {
-            throw new Error('Last name must be a non-empty string.');
+    set description(desc) {
+        if (!desc || typeof desc !== 'string') {
+            throw new Error('Description must be a non-empty string.');
         }
-        this.#lastName = name;
+        this.#description = desc;
     }
 
-    set email(email) {
+    set userEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email || !emailRegex.test(email)) {
             throw new Error('Invalid email format provided.');
         }
-        this.#email = email;
+        this.#userEmail = email;
     }
 
-    set preferredMaterial(material) {
+    set material(material) {
         if (!material || typeof material !== 'string') {
-            throw new Error('Preferred material must be a non-empty string.');
+            throw new Error('Material must be a non-empty string.');
         }
-        this.#preferredMaterial = material;
+        this.#material = material;
     }
 
-    set preferredColor(color) {
+    set color(color) {
         if (!color || typeof color !== 'string') {
-            throw new Error('Preferred color must be a non-empty string.');
+            throw new Error('Color must be a non-empty string.');
         }
-        this.#preferredColor = color;
+        this.#color = color;
     }
 
     /**

@@ -99,12 +99,23 @@ const PrintRequest = () => {
         // Reset file input
         document.getElementById('file').value = '';
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to submit print request. Please try again.');
+        let errorMessage = 'Failed to submit print request. Please try again.';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (parseError) {
+          console.error('Error parsing response:', parseError);
+          errorMessage = `Server error (${response.status}): ${response.statusText}`;
+        }
+        setError(errorMessage);
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
       console.error('Print request error:', err);
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        setError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        setError(`An unexpected error occurred: ${err.message}. Please try again.`);
+      }
     } finally {
       setIsSubmitting(false);
     }

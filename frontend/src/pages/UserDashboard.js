@@ -10,6 +10,8 @@ const UserDashboard = () => {
   const [communityRequests, setCommunityRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -17,15 +19,15 @@ const UserDashboard = () => {
   const mockPrintRequests = [
     {
       id: 1,
-      title: "Custom Phone Case",
-      description: "3D printed phone case for iPhone 15",
+      title: "Resonator IEM Shell",
+      description: "Custom in-ear monitor shell for audio project",
       status: "Completed",
       date: "2024-01-15",
       material: "PLA",
       color: "Red",
       cost: 12.50,
       isPublic: true,
-      modelUrl: null,
+      modelUrl: "/models/resonator-iem-shell.stl",
       fallbackImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop"
     },
     {
@@ -38,7 +40,7 @@ const UserDashboard = () => {
       color: "Black",
       cost: 8.75,
       isPublic: false,
-      modelUrl: null,
+      modelUrl: "/models/resonator-iem-shell.stl",
       fallbackImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=300&fit=crop"
     },
     {
@@ -51,7 +53,7 @@ const UserDashboard = () => {
       color: "White",
       cost: 15.00,
       isPublic: true,
-      modelUrl: null,
+      modelUrl: "/models/resonator-iem-shell.stl",
       fallbackImage: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&h=300&fit=crop"
     }
   ];
@@ -59,15 +61,15 @@ const UserDashboard = () => {
   const mockCommunityRequests = [
     {
       id: 1,
-      title: "Open Source Drone Frame",
-      description: "Lightweight drone frame design for educational purposes",
+      title: "Resonator IEM Shell",
+      description: "Custom in-ear monitor shell for audio project",
       author: "MakerSpace Community",
       date: "2024-01-22",
       likes: 15,
       downloads: 8,
       material: "PLA",
       color: "Black",
-      modelUrl: null,
+      modelUrl: "/models/resonator-iem-shell.stl",
       fallbackImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop"
     },
     {
@@ -80,7 +82,7 @@ const UserDashboard = () => {
       downloads: 12,
       material: "PETG",
       color: "White",
-      modelUrl: null,
+      modelUrl: "/models/resonator-iem-shell.stl",
       fallbackImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=300&fit=crop"
     },
     {
@@ -93,50 +95,80 @@ const UserDashboard = () => {
       downloads: 6,
       material: "ABS",
       color: "Grey",
-      modelUrl: null,
+      modelUrl: "/models/resonator-iem-shell.stl",
       fallbackImage: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&h=300&fit=crop"
     }
   ];
 
   const loadUserPrintRequests = useCallback(async () => {
+    // Don't reload if data is already loaded and we've tried too many times
+    if (dataLoaded && connectionAttempts >= 3) {
+      return;
+    }
+
     setLoading(true);
     setError('');
     
     try {
-      // Try to connect to Snowflake database
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/print-requests`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${user?.accessToken || 'demo-token'}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // Try to connect to Snowflake database (max 3 attempts)
+      if (connectionAttempts < 3) {
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-      if (response.ok) {
-        const data = await response.json();
-        setPrintRequests(data.printRequests || []);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/print-requests`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${user?.accessToken || 'demo-token'}`,
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          setPrintRequests(data.printRequests || []);
+          setDataLoaded(true);
+          setConnectionAttempts(0); // Reset on success
+        } else {
+          throw new Error('API request failed');
+        }
       } else {
-        // If Snowflake is not set up, show mock data with error message
-        setPrintRequests(mockPrintRequests);
-        setError('Database connection not available. Showing sample data. Please contact admin to set up Snowflake database.');
+        throw new Error('Max connection attempts reached');
       }
     } catch (err) {
-      // Fallback to mock data
+      // Fallback to mock data after failed attempts
       setPrintRequests(mockPrintRequests);
       setError('Database connection not available. Showing sample data. Please contact admin to set up Snowflake database.');
+      setDataLoaded(true);
+      setConnectionAttempts(prev => prev + 1);
     } finally {
       setLoading(false);
     }
-  }, [user?.accessToken]);
+  }, [user?.accessToken, mockPrintRequests, dataLoaded, connectionAttempts]);
 
   const loadCommunityRequests = useCallback(async () => {
+    // Don't reload if data is already loaded
+    if (dataLoaded && communityRequests.length > 0) {
+      return;
+    }
+
     try {
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/community/print-requests`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
@@ -149,7 +181,7 @@ const UserDashboard = () => {
       // Fallback to mock data
       setCommunityRequests(mockCommunityRequests);
     }
-  }, []);
+  }, [mockCommunityRequests, dataLoaded, communityRequests.length]);
 
   const togglePublicStatus = async (requestId, isPublic) => {
     try {
@@ -177,13 +209,22 @@ const UserDashboard = () => {
   };
 
   useEffect(() => {
-    // Load user's print requests from Snowflake (or show error)
-    loadUserPrintRequests();
-    loadCommunityRequests();
-  }, [loadUserPrintRequests, loadCommunityRequests]);
+    // Only load data once when component mounts
+    if (!dataLoaded) {
+      loadUserPrintRequests();
+      loadCommunityRequests();
+    }
+  }, [loadUserPrintRequests, loadCommunityRequests, dataLoaded]);
 
   const handleCreatePrintRequest = () => {
     navigate('/print-request');
+  };
+
+  // Handle view details button click
+  const handleViewDetails = (request) => {
+    // For now, just show an alert with basic info
+    // In a full implementation, this would open a modal with detailed data
+    alert(`View Details for: ${request.title}\nStatus: ${request.status}\nMaterial: ${request.material} - ${request.color}\nCost: $${request.cost}`);
   };
 
   const getStatusColor = (status) => {
@@ -389,7 +430,12 @@ const UserDashboard = () => {
                 </small>
               </div>
               <div className="history-item-actions">
-                <button className="btn btn-outline">View Details</button>
+                <button 
+                  className="btn btn-outline"
+                  onClick={() => handleViewDetails(request)}
+                >
+                  View Details
+                </button>
                 {request.status === 'Completed' && (
                   <button className="btn btn-outline">Download Files</button>
                 )}

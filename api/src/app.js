@@ -10,6 +10,9 @@ const { errorHandler, notFoundHandler, requestLogger } = require('./middleware/e
 // Import routes
 const printRequestRoutes = require('./routes/printRequest');
 
+// Import database client
+const snowflakeClient = require('./database/snowflakeClient');
+
 /**
  * Rutgers Makerspace Smart 3D Printing API
  * Main application entry point with Express.js configuration
@@ -182,7 +185,34 @@ class MakerspaceAPI {
     /**
      * Starts the server
      */
-    start() {
+    async start() {
+        try {
+            // Initialize database connection
+            console.log('🔄 Initializing database connection...');
+            await snowflakeClient.connect();
+            console.log('✅ Database connected successfully');
+            
+            // Set database context
+            await snowflakeClient.execute('USE DATABASE RUTGERS_MAKERSPACE');
+            await snowflakeClient.execute('USE SCHEMA MAKERSPACE');
+            console.log('✅ Database context set');
+            
+        } catch (error) {
+            console.error('❌ Database connection failed:', error.message);
+            console.log('⚠️  Continuing without database - some features may be limited');
+        }
+
+        // Set up periodic connection health check
+        setInterval(async () => {
+            try {
+                if (snowflakeClient.isConnected) {
+                    await snowflakeClient.checkConnection();
+                }
+            } catch (error) {
+                console.log('🔄 Database connection health check failed, will reconnect on next query');
+            }
+        }, 30000); // Check every 30 seconds
+
         this.app.listen(this.port, () => {
             console.log(`🚀 Rutgers Makerspace 3D Printing API running on port ${this.port}`);
             console.log(`📚 API Documentation: http://localhost:${this.port}/api/config`);

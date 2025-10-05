@@ -20,6 +20,12 @@ body {
   flex-direction: column;
 }
 
+/* Ensure content has proper spacing from footer */
+main {
+  flex: 1;
+  padding-bottom: 2rem;
+}
+
 /* Global Button Styles */
 .btn {
   display: inline-block;

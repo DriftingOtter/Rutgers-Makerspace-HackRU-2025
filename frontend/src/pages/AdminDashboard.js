@@ -13,6 +13,13 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
+  const [editingRequest, setEditingRequest] = useState(null);
+  const [editStatus, setEditStatus] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [requestDetails, setRequestDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
@@ -41,7 +48,7 @@ const AdminDashboard = () => {
       fileSize: '2.3 MB',
       notes: 'High quality print, customer satisfied',
       isPublic: true,
-      modelUrl: null,
+      modelUrl: '/models/resonator-iem-shell.stl',
       fallbackImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop'
     },
     { 
@@ -111,18 +118,92 @@ const AdminDashboard = () => {
   ];
 
   const loadAdminData = useCallback(async () => {
+    // Don't reload if data is already loaded
+    if (dataLoaded) {
+      return;
+    }
+
     setLoading(true);
     try {
       // In a real app, these would be API calls
       setUsers(mockUsers);
       setPrintRequests(mockPrintRequests);
       setEquipment(mockEquipment);
+      setDataLoaded(true);
     } catch (error) {
       console.error('Error loading admin data:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mockUsers, mockPrintRequests, mockEquipment, dataLoaded]);
+
+  // Fetch detailed print request data from database
+  const fetchRequestDetails = async (requestId) => {
+    setLoadingDetails(true);
+    try {
+      const response = await fetch(`http://localhost:8080/api/print-request/${requestId}`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        setRequestDetails(data.data);
+      } else {
+        console.error('Failed to fetch request details:', data.message);
+        // Fallback to mock data if database fails
+        const mockRequest = mockPrintRequests.find(req => req.id === requestId);
+        if (mockRequest) {
+          setRequestDetails(mockRequest);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching request details:', error);
+      // Fallback to mock data
+      const mockRequest = mockPrintRequests.find(req => req.id === requestId);
+      if (mockRequest) {
+        setRequestDetails(mockRequest);
+      }
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  // Handle view details button click
+  const handleViewDetails = (request) => {
+    setSelectedRequest(request);
+    fetchRequestDetails(request.id);
+  };
+
+  const updateRequestStatus = async (requestId, newStatus, notes = '') => {
+    try {
+      // Update the request in the local state
+      setPrintRequests(prev => 
+        prev.map(req => 
+          req.id === requestId 
+            ? { ...req, status: newStatus, notes: notes || req.notes }
+            : req
+        )
+      );
+      
+      // Here you would typically make an API call to update the database
+      console.log(`Updated request ${requestId} to status: ${newStatus}`);
+      
+      // Close the edit modal
+      setEditingRequest(null);
+      setEditStatus('');
+      setEditNotes('');
+      
+      // Show success message (you could add a toast notification here)
+      alert(`Request status updated to: ${newStatus}`);
+    } catch (error) {
+      console.error('Error updating request status:', error);
+      alert('Failed to update request status');
+    }
+  };
+
+  const startEditingRequest = (request) => {
+    setEditingRequest(request);
+    setEditStatus(request.status);
+    setEditNotes(request.notes || '');
+  };
 
   useEffect(() => {
     // Check if user is admin
@@ -131,9 +212,11 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Load admin data
-    loadAdminData();
-  }, [user, navigate, loadAdminData]);
+    // Load admin data only once
+    if (!dataLoaded) {
+      loadAdminData();
+    }
+  }, [user, navigate, loadAdminData, dataLoaded]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -304,11 +387,16 @@ const AdminDashboard = () => {
                 <td>
                   <button 
                     className="btn btn-sm btn-primary"
-                    onClick={() => setSelectedRequest(request)}
+                    onClick={() => handleViewDetails(request)}
                   >
                     View
                   </button>
-                  <button className="btn btn-sm btn-outline">Edit</button>
+                  <button 
+                    className="btn btn-sm btn-outline"
+                    onClick={() => startEditingRequest(request)}
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}
@@ -357,6 +445,8 @@ const AdminDashboard = () => {
   const renderPrintRequestModal = () => {
     if (!selectedRequest) return null;
 
+    const displayData = requestDetails || selectedRequest;
+
     return (
       <div className="modal-overlay" onClick={() => setSelectedRequest(null)}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -364,75 +454,84 @@ const AdminDashboard = () => {
             <h2>Print Request Details</h2>
             <button 
               className="close-btn"
-              onClick={() => setSelectedRequest(null)}
+              onClick={() => {
+                setSelectedRequest(null);
+                setRequestDetails(null);
+              }}
             >
               ×
             </button>
           </div>
           <div className="modal-body">
-            {/* 3D Model Viewer */}
-            <div className="model-viewer-section">
-              <h3>3D Model Preview</h3>
-              <ModelViewer 
-                modelUrl={selectedRequest.modelUrl}
-                fallbackImage={selectedRequest.fallbackImage}
-                width="100%"
-                height="300px"
-                showControls={true}
-                autoRotate={true}
-              />
-            </div>
+            {loadingDetails ? (
+              <div className="loading">Loading request details...</div>
+            ) : (
+              <>
+                {/* 3D Model Viewer */}
+                <div className="model-viewer-section">
+                  <h3>3D Model Preview</h3>
+                  <ModelViewer 
+                    modelUrl={displayData.file?.modelUrl || displayData.modelUrl}
+                    fallbackImage={displayData.file?.fallbackImage || displayData.fallbackImage}
+                    width="100%"
+                    height="300px"
+                    showControls={true}
+                    autoRotate={true}
+                  />
+                </div>
 
-            <div className="request-details">
-              <div className="detail-row">
-                <strong>Request ID:</strong> #{selectedRequest.id}
+                <div className="request-details">
+                  <div className="detail-row">
+                    <strong>Request ID:</strong> #{displayData.id || displayData.requestId}
+                  </div>
+                  <div className="detail-row">
+                    <strong>User:</strong> {displayData.user?.name || displayData.user} ({displayData.user?.email || displayData.email})
               </div>
-              <div className="detail-row">
-                <strong>User:</strong> {selectedRequest.user} ({selectedRequest.email})
-              </div>
-              <div className="detail-row">
-                <strong>Title:</strong> {selectedRequest.title}
-              </div>
-              <div className="detail-row">
-                <strong>Description:</strong> {selectedRequest.description}
-              </div>
-              <div className="detail-row">
-                <strong>Status:</strong> 
-                <span className={`status ${getStatusColor(selectedRequest.status)}`}>
-                  {selectedRequest.status}
-                </span>
-              </div>
-              <div className="detail-row">
-                <strong>Date:</strong> {selectedRequest.date}
-              </div>
-              <div className="detail-row">
-                <strong>Cost:</strong> ${selectedRequest.cost}
-              </div>
-              <div className="detail-row">
-                <strong>Material:</strong> {selectedRequest.material}
-              </div>
-              <div className="detail-row">
-                <strong>Color:</strong> {selectedRequest.color}
-              </div>
-              <div className="detail-row">
-                <strong>Printer:</strong> {selectedRequest.printer}
-              </div>
-              <div className="detail-row">
-                <strong>Print Time:</strong> {selectedRequest.printTime}
-              </div>
-              <div className="detail-row">
-                <strong>File Size:</strong> {selectedRequest.fileSize}
-              </div>
-              <div className="detail-row">
-                <strong>Public:</strong> 
-                <span className={`status ${selectedRequest.isPublic ? 'status-success' : 'status-danger'}`}>
-                  {selectedRequest.isPublic ? 'Yes' : 'No'}
-                </span>
-              </div>
-              <div className="detail-row">
-                <strong>Notes:</strong> {selectedRequest.notes}
-              </div>
-            </div>
+                  <div className="detail-row">
+                    <strong>Title:</strong> {displayData.project?.name || displayData.title}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Description:</strong> {displayData.project?.description || displayData.description}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Status:</strong> 
+                    <span className={`status ${getStatusColor(displayData.status)}`}>
+                      {displayData.status}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <strong>Date:</strong> {displayData.createdAt || displayData.date}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Cost:</strong> ${displayData.cost || displayData.estimatedCost}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Material:</strong> {displayData.project?.material || displayData.material}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Color:</strong> {displayData.project?.color || displayData.color}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Printer:</strong> {displayData.printer?.id || displayData.printer}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Print Time:</strong> {displayData.printTime || 'N/A'}
+                  </div>
+                  <div className="detail-row">
+                    <strong>File Size:</strong> {displayData.file?.size || displayData.fileSize || 'N/A'}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Public:</strong> 
+                    <span className={`status ${displayData.isPublic ? 'status-success' : 'status-danger'}`}>
+                      {displayData.isPublic ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <strong>Notes:</strong> {displayData.project?.specialInstructions || displayData.notes || 'None'}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           <div className="modal-footer">
             <button className="btn btn-primary">Update Status</button>
@@ -501,6 +600,78 @@ const AdminDashboard = () => {
               onClick={() => setSelectedEquipment(null)}
             >
               Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Edit Request Modal
+  const renderEditRequestModal = () => {
+    if (!editingRequest) return null;
+
+    return (
+      <div className="modal-overlay" onClick={() => setEditingRequest(null)}>
+        <div className="modal-content edit-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Edit Request Status</h3>
+            <button 
+              className="close-btn"
+              onClick={() => setEditingRequest(null)}
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="edit-form">
+              <div className="form-group">
+                <label>Request: {editingRequest.title}</label>
+                <p className="request-info">User: {editingRequest.user} | ID: #{editingRequest.id}</p>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="status">Status:</label>
+                <select 
+                  id="status"
+                  value={editStatus}
+                  onChange={(e) => setEditStatus(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="notes">Admin Notes:</label>
+                <textarea 
+                  id="notes"
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  className="form-textarea"
+                  rows="4"
+                  placeholder="Add notes about this request..."
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="modal-footer">
+            <button 
+              className="btn btn-outline"
+              onClick={() => setEditingRequest(null)}
+            >
+              Cancel
+            </button>
+            <button 
+              className="btn btn-primary"
+              onClick={() => updateRequestStatus(editingRequest.id, editStatus, editNotes)}
+            >
+              Update Status
             </button>
           </div>
         </div>
@@ -583,6 +754,7 @@ const AdminDashboard = () => {
       {/* Modals */}
       {renderPrintRequestModal()}
       {renderEquipmentModal()}
+      {renderEditRequestModal()}
     </div>
   );
 };

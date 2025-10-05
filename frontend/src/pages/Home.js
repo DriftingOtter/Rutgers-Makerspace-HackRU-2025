@@ -28,23 +28,24 @@ const Home = () => {
             <Link to="/login" className="btn btn-primary">Print Request</Link>
           </div>
         </div>
-        
-        {/* Features Cards Overlay */}
-        <div className="features-overlay">
-          <div className="container">
-            <div className="features-grid">
-              <div className="feature-card">
-                <h3>3D Printing</h3>
-                <p>Access to professional 3D printers for your projects and prototypes.</p>
-              </div>
-              <div className="feature-card">
-                <h3>Workshop Tools</h3>
-                <p>Complete workshop with tools for woodworking, electronics, and more.</p>
-              </div>
-              <div className="feature-card">
-                <h3>Collaboration</h3>
-                <p>Work with fellow makers and bring your ideas to life together.</p>
-              </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="features">
+        <div className="container">
+          <h2 className="features-title">Welcome to RUmakerspace</h2>
+          <div className="features-grid">
+            <div className="feature-card">
+              <h3>3D Printing</h3>
+              <p>Access to professional 3D printers for your projects and prototypes.</p>
+            </div>
+            <div className="feature-card">
+              <h3>Workshop Tools</h3>
+              <p>Complete workshop with tools for woodworking, electronics, and more.</p>
+            </div>
+            <div className="feature-card">
+              <h3>Collaboration</h3>
+              <p>Work with fellow makers and bring your ideas to life together.</p>
             </div>
           </div>
         </div>

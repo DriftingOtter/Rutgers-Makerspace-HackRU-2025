@@ -9,61 +9,17 @@ const Joi = require('joi');
  * Schema for print request validation
  */
 const printRequestSchema = Joi.object({
-    firstName: Joi.string()
+    projectName: Joi.string()
         .min(1)
-        .max(50)
-        .pattern(/^[a-zA-Z\s\-']+$/)
+        .max(100)
         .required()
         .messages({
-            'string.empty': 'First name is required',
-            'string.min': 'First name must be at least 1 character',
-            'string.max': 'First name must not exceed 50 characters',
-            'string.pattern.base': 'First name contains invalid characters'
+            'string.empty': 'Project name is required',
+            'string.min': 'Project name must be at least 1 character',
+            'string.max': 'Project name must not exceed 100 characters'
         }),
 
-    lastName: Joi.string()
-        .min(1)
-        .max(50)
-        .pattern(/^[a-zA-Z\s\-']+$/)
-        .required()
-        .messages({
-            'string.empty': 'Last name is required',
-            'string.min': 'Last name must be at least 1 character',
-            'string.max': 'Last name must not exceed 50 characters',
-            'string.pattern.base': 'Last name contains invalid characters'
-        }),
-
-    netID: Joi.string()
-        .pattern(/^[a-z]{2,3}\d{2,3}$/i)
-        .required()
-        .messages({
-            'string.empty': 'NetID is required',
-            'string.pattern.base': 'NetID must be 2-3 letters followed by 2-3 digits (e.g., jd567)'
-        }),
-
-    email: Joi.string()
-        .email()
-        .pattern(/@rutgers\.edu$/)
-        .required()
-        .messages({
-            'string.empty': 'Email is required',
-            'string.email': 'Email must be a valid email address',
-            'string.pattern.base': 'Email must be a Rutgers email address (@rutgers.edu)'
-        }),
-
-    phone: Joi.string()
-        .pattern(/^[\d\s\-\(\)\+]+$/)
-        .min(10)
-        .max(20)
-        .required()
-        .messages({
-            'string.empty': 'Phone number is required',
-            'string.pattern.base': 'Phone number contains invalid characters',
-            'string.min': 'Phone number must be at least 10 digits',
-            'string.max': 'Phone number must not exceed 20 characters'
-        }),
-
-    projectDescription: Joi.string()
+    description: Joi.string()
         .min(10)
         .max(1000)
         .required()
@@ -73,32 +29,73 @@ const printRequestSchema = Joi.object({
             'string.max': 'Project description must not exceed 1000 characters'
         }),
 
-    fileLink: Joi.string()
-        .uri({ scheme: ['http', 'https'] })
+    material: Joi.string()
+        .valid('PLA', 'PETG', 'ABS', 'TPU', 'ASA', 'PC', 'PA', 'Standard Resin', 'Tough Resin', 'Any')
         .required()
         .messages({
-            'string.empty': 'File link is required',
-            'string.uri': 'File link must be a valid HTTP/HTTPS URL'
+            'string.empty': 'Material is required',
+            'any.only': 'Material must be one of: PLA, PETG, ABS, TPU, ASA, PC, PA, Standard Resin, Tough Resin, Any'
         }),
 
-    preferredMaterial: Joi.string()
-        .valid('PLA', 'PETG', 'ABS', 'TPU', 'ASA', 'PC', 'PA', 'Standard Resin', 'Tough Resin')
-        .required()
-        .messages({
-            'string.empty': 'Preferred material is required',
-            'any.only': 'Preferred material must be one of: PLA, PETG, ABS, TPU, ASA, PC, PA, Standard Resin, Tough Resin'
-        }),
-
-    preferredColor: Joi.string()
+    color: Joi.string()
         .min(1)
         .max(30)
-        .pattern(/^[a-zA-Z\s\-]+$/)
         .required()
         .messages({
-            'string.empty': 'Preferred color is required',
+            'string.empty': 'Color is required',
             'string.min': 'Color must be at least 1 character',
-            'string.max': 'Color must not exceed 30 characters',
-            'string.pattern.base': 'Color contains invalid characters'
+            'string.max': 'Color must not exceed 30 characters'
+        }),
+
+    quantity: Joi.number()
+        .integer()
+        .min(1)
+        .max(10)
+        .required()
+        .messages({
+            'number.base': 'Quantity must be a number',
+            'number.integer': 'Quantity must be a whole number',
+            'number.min': 'Quantity must be at least 1',
+            'number.max': 'Quantity must not exceed 10'
+        }),
+
+    urgency: Joi.string()
+        .valid('low', 'normal', 'high', 'urgent')
+        .required()
+        .messages({
+            'string.empty': 'Urgency is required',
+            'any.only': 'Urgency must be one of: low, normal, high, urgent'
+        }),
+
+    specialInstructions: Joi.string()
+        .max(500)
+        .allow('')
+        .messages({
+            'string.max': 'Special instructions must not exceed 500 characters'
+        }),
+
+    file: Joi.object()
+        .optional()
+        .messages({
+            'object.base': 'File must be an object'
+        }),
+
+    userEmail: Joi.string()
+        .email()
+        .required()
+        .messages({
+            'string.empty': 'User email is required',
+            'string.email': 'User email must be a valid email address'
+        }),
+
+    userName: Joi.string()
+        .min(1)
+        .max(100)
+        .required()
+        .messages({
+            'string.empty': 'User name is required',
+            'string.min': 'User name must be at least 1 character',
+            'string.max': 'User name must not exceed 100 characters'
         }),
 
     renderImages: Joi.array()

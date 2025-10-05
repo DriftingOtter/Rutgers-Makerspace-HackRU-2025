@@ -1,6 +1,6 @@
 /* Equipment Page Styles */
 .equipment-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
   background-color: #f8f9fa;
   display: flex;
   flex-direction: column;

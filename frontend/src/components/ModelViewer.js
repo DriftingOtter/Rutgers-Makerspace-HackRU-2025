@@ -1,8 +1,9 @@
 import React, { Suspense, useState, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, useGLTF, useFBX, Html } from '@react-three/drei';
+import { Canvas, useLoader } from '@react-three/fiber';
+import { OrbitControls, Environment, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import './ModelViewer.css';
 
 // Fallback component for when model fails to load
@@ -31,9 +32,8 @@ function FallbackModel() {
   );
 }
 
-// Component to load and display 3D models
-function Model({ url, fallbackImage }) {
-  const [error, setError] = useState(false);
+// Component to load and display STL models
+function STLModel({ url }) {
   const meshRef = useRef();
   
   useFrame((state) => {
@@ -42,27 +42,52 @@ function Model({ url, fallbackImage }) {
     }
   });
 
-  // For now, show a placeholder since we don't have actual 3D files
-  // In production, this would load the actual STL/OBJ files
-  if (error || !url) {
-    return <FallbackModel />;
-  }
+  const geometry = useLoader(STLLoader, url);
+  
+  // Center and scale the geometry
+  geometry.computeBoundingBox();
+  const center = geometry.boundingBox.getCenter(new THREE.Vector3());
+  geometry.translate(-center.x, -center.y, -center.z);
+  
+  const size = geometry.boundingBox.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = 4 / maxDim;
+  geometry.scale(scale, scale, scale);
 
   return (
     <group ref={meshRef}>
-      <mesh>
-        <boxGeometry args={[2, 2, 2]} />
-        <meshStandardMaterial color="#d32f2f" />
+      <mesh geometry={geometry}>
+        <meshStandardMaterial 
+          color="#d32f2f" 
+          metalness={0.3}
+          roughness={0.4}
+        />
       </mesh>
-      <Html center>
-        <div className="model-placeholder">
-          <img src={fallbackImage} alt="3D Model Preview" className="model-preview-image" />
-          <p>3D Model Preview</p>
-          <small>Interactive 3D view will be available with database integration</small>
-        </div>
-      </Html>
     </group>
   );
+}
+
+// Component to load and display 3D models
+function Model({ url, fallbackImage }) {
+  const meshRef = useRef();
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.2;
+    }
+  });
+
+  // If we have a valid STL URL, use the STL loader
+  if (url && url.endsWith('.stl')) {
+    return (
+      <Suspense fallback={<Loading />}>
+        <STLModel url={url} />
+      </Suspense>
+    );
+  }
+
+  // Fallback to placeholder if no URL or not STL file
+  return <FallbackModel />;
 }
 
 // Loading component
@@ -85,7 +110,6 @@ const ModelViewer = ({
   showControls = true,
   autoRotate = true 
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
 
   // Random fallback images for demo purposes
   const randomImages = [
@@ -102,7 +126,6 @@ const ModelViewer = ({
     <div className="model-viewer" style={{ width, height }}>
       <Canvas
         camera={{ position: [0, 0, 5], fov: 50 }}
-        onCreated={() => setIsLoading(false)}
       >
         <Suspense fallback={<Loading />}>
           <ambientLight intensity={0.5} />

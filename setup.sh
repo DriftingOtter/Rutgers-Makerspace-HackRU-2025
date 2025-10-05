@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Rutgers Makerspace HackRU 2025 - Demo Setup Script
-# This script prepares the database and starts the frontend for demo
+# This script prepares the database and starts both API and frontend for demo
 
 set -e  # Exit on any error
 
@@ -159,8 +159,20 @@ find_available_port() {
     local max_attempts=10
     local attempts=0
     
+    # Check if lsof is available, if not use netstat
+    local port_check_cmd="lsof -i :$port"
+    if ! command -v lsof >/dev/null 2>&1; then
+        if command -v netstat >/dev/null 2>&1; then
+            port_check_cmd="netstat -tlnp | grep :$port"
+        else
+            # If neither lsof nor netstat is available, just try the port
+            echo $port
+            return 0
+        fi
+    fi
+    
     while [ $attempts -lt $max_attempts ]; do
-        if ! lsof -i :$port >/dev/null 2>&1; then
+        if ! eval "$port_check_cmd" >/dev/null 2>&1; then
             echo $port
             return 0
         fi
@@ -175,6 +187,15 @@ find_available_port() {
 setup_ports() {
     print_step "Checking port availability..."
     
+    # Check API port (8080)
+    API_PORT=$(find_available_port 8080)
+    if [ $? -eq 0 ]; then
+        print_success "API port $API_PORT is available"
+    else
+        print_error "No available ports found for API (tried 8080-8089)"
+        exit 1
+    fi
+    
     # Check frontend port (8085)
     FRONTEND_PORT=$(find_available_port 8085)
     if [ $? -eq 0 ]; then
@@ -184,10 +205,12 @@ setup_ports() {
         exit 1
     fi
     
-    # Set the port in environment
-    export PORT=$FRONTEND_PORT
-    export REACT_APP_API_BASE_URL=http://localhost:8080
+    # Set the ports in environment
+    export API_PORT=$API_PORT
+    export FRONTEND_PORT=$FRONTEND_PORT
+    export REACT_APP_API_BASE_URL=http://localhost:$API_PORT
     
+    print_info "API will start on port $API_PORT"
     print_info "Frontend will start on port $FRONTEND_PORT"
 }
 
@@ -204,6 +227,48 @@ create_demo_data() {
     cd ..
 }
 
+# Start API server
+start_api() {
+    print_step "Starting API server..."
+    
+    cd api
+    
+    # Set the port
+    export PORT=$API_PORT
+    
+    print_info "Starting API server on port $API_PORT..."
+    print_info "API URL: http://localhost:$API_PORT"
+    print_info "API Health: http://localhost:$API_PORT/api/health"
+    
+    # Start API in background
+    npm start &
+    API_PID=$!
+    
+    # Wait a moment for API to start
+    sleep 3
+    
+    # Test if API is running with retries
+    local max_retries=5
+    local retry_count=0
+    
+    while [ $retry_count -lt $max_retries ]; do
+        if curl -s http://localhost:$API_PORT/api/health >/dev/null 2>&1; then
+            print_success "API server started successfully"
+            break
+        else
+            retry_count=$((retry_count + 1))
+            print_info "Waiting for API to start... (attempt $retry_count/$max_retries)"
+            sleep 2
+        fi
+    done
+    
+    if [ $retry_count -eq $max_retries ]; then
+        print_warning "API server may not be fully ready yet, but continuing..."
+    fi
+    
+    cd ..
+}
+
 # Start frontend
 start_frontend() {
     print_step "Starting frontend..."
@@ -215,7 +280,7 @@ start_frontend() {
     
     print_info "Starting React frontend on port $FRONTEND_PORT..."
     print_info "Frontend URL: http://localhost:$FRONTEND_PORT"
-    print_info "Press Ctrl+C to stop"
+    print_info "Press Ctrl+C to stop both services"
     echo
     
     # Start the frontend
@@ -226,8 +291,17 @@ start_frontend() {
 cleanup() {
     echo
     print_info "Cleaning up..."
-    # Kill any background processes
+    
+    # Kill API server if running
+    if [ ! -z "$API_PID" ]; then
+        print_info "Stopping API server (PID: $API_PID)..."
+        kill $API_PID 2>/dev/null || true
+    fi
+    
+    # Kill any other background processes
     jobs -p | xargs -r kill 2>/dev/null || true
+    
+    print_success "Cleanup completed"
     exit 0
 }
 
@@ -238,7 +312,7 @@ trap cleanup SIGINT
 main() {
     print_header
     
-    print_info "This script will prepare the database and start the frontend for demo"
+    print_info "This script will prepare the database and start both API and frontend for demo"
     print_info "Make sure you have your .env files configured with Firebase and Snowflake credentials"
     echo
     
@@ -253,7 +327,14 @@ main() {
     echo
     print_success "🎉 Setup completed successfully!"
     echo
-    print_info "Starting frontend for demo..."
+    print_info "Starting services for demo..."
+    echo
+    
+    # Start the API server first
+    start_api
+    
+    echo
+    print_info "Starting frontend..."
     echo
     
     # Start the frontend (this will block until stopped)

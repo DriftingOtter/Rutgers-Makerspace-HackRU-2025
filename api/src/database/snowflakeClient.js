@@ -19,6 +19,15 @@ class SnowflakeClient {
     }
 
     return new Promise((resolve, reject) => {
+      // Debug logging
+      console.log('🔍 Snowflake connection parameters:');
+      console.log('  Account:', process.env.SF_ACCOUNT);
+      console.log('  User:', process.env.SF_USER);
+      console.log('  Warehouse:', process.env.SF_WAREHOUSE);
+      console.log('  Database:', process.env.SF_DATABASE);
+      console.log('  Schema:', process.env.SF_SCHEMA);
+      console.log('  Role:', process.env.SF_ROLE);
+
       this.connection = snowflake.createConnection({
         account: process.env.SF_ACCOUNT,
         username: process.env.SF_USER,
@@ -55,8 +64,36 @@ class SnowflakeClient {
     });
   }
 
+  async checkConnection() {
+    if (!this.isConnected || !this.connection) {
+      throw new Error('Connection not established');
+    }
+    
+    // Try a simple query to check if connection is alive
+    return new Promise((resolve, reject) => {
+      this.connection.execute({
+        sqlText: 'SELECT 1 as test',
+        complete: (err, stmt, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(true);
+          }
+        }
+      });
+    });
+  }
+
   async execute(sql, binds = []) {
     if (!this.isConnected) {
+      await this.connect();
+    }
+
+    // Check connection health before executing
+    try {
+      await this.checkConnection();
+    } catch (error) {
+      console.log('🔄 Connection lost, reconnecting...');
       await this.connect();
     }
 

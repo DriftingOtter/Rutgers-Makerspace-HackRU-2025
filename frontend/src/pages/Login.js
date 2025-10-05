@@ -20,12 +20,16 @@ const Login = () => {
 
   // Redirect if already logged in
   useEffect(() => {
+    console.log('Login useEffect: user state changed', user);
     if (user) {
+      console.log('Login: User is logged in, redirecting...');
       // Check if user is admin
       if (user.isAdmin) {
+        console.log('Login: Redirecting to admin dashboard');
         navigate('/admin', { replace: true });
       } else {
         const from = location.state?.from?.pathname || '/dashboard';
+        console.log('Login: Redirecting to dashboard', from);
         navigate(from, { replace: true });
       }
     }
@@ -71,9 +75,14 @@ const Login = () => {
       if (isSignUp) {
         result = await signUpWithEmail(formData.email, formData.password, formData.displayName);
         if (result.user) {
+          // Update the auth context with the user
+          setUser(result.user);
           setSuccess('Account created successfully! Please check your email for verification.');
           setIsSignUp(false);
           setFormData({ email: '', password: '', displayName: '' });
+          // Redirect to dashboard after successful signup
+          const from = location.state?.from?.pathname || '/dashboard';
+          navigate(from, { replace: true });
         }
       } else {
         // Check for admin credentials first
@@ -86,8 +95,13 @@ const Login = () => {
           }
         } else {
           result = await signInWithEmail(formData.email, formData.password);
+          console.log('Email sign-in result:', result);
           if (result.user) {
+            // Update the auth context with the user
+            console.log('Setting user in context:', result.user);
+            setUser(result.user);
             const from = location.state?.from?.pathname || '/dashboard';
+            console.log('Navigating to:', from);
             navigate(from, { replace: true });
           }
         }
@@ -110,8 +124,13 @@ const Login = () => {
     
     try {
       const result = await signInWithGoogle();
+      console.log('Google sign-in result:', result);
       if (result.user) {
+        // Update the auth context with the user
+        console.log('Setting Google user in context:', result.user);
+        setUser(result.user);
         const from = location.state?.from?.pathname || '/dashboard';
+        console.log('Navigating to:', from);
         navigate(from, { replace: true });
       } else if (result.error) {
         setError(result.error);

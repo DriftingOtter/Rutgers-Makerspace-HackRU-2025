@@ -1,10 +1,28 @@
 const express = require('express');
+const multer = require('multer');
 const PrintRequestController = require('../controllers/PrintRequestController');
 const { validatePrintRequest, validateQueryParams, sanitizeInput } = require('../middleware/validation');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { requestLogger } = require('../middleware/errorHandler');
 
 const router = express.Router();
+
+// Configure multer for file uploads
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 50 * 1024 * 1024 // 50MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['.stl', '.obj', '.3mf'];
+        const fileExtension = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'));
+        if (allowedTypes.includes(fileExtension)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type. Only .stl, .obj, and .3mf files are allowed.'));
+        }
+    }
+});
 
 // Initialize controller with configuration
 const controller = new PrintRequestController({
@@ -20,15 +38,39 @@ const controller = new PrintRequestController({
  */
 router.post('/print-request', 
     requestLogger,
+    upload.single('file'),
     sanitizeInput,
     validatePrintRequest,
     validateQueryParams,
     asyncHandler(async (req, res) => {
         try {
-            const result = await controller.processPrintRequest(req.body);
+            // Combine form data and file data
+            const requestData = {
+                ...req.body,
+                file: req.file
+            };
+            const result = await controller.processPrintRequest(requestData);
             res.status(200).json(result);
         } catch (error) {
             // Error will be handled by errorHandler middleware
+            throw error;
+        }
+    })
+);
+
+/**
+ * @route GET /api/print-request/:id
+ * @description Get detailed print request information
+ * @access Public
+ */
+router.get('/print-request/:id',
+    requestLogger,
+    asyncHandler(async (req, res) => {
+        try {
+            const requestId = req.params.id;
+            const result = await controller.getPrintRequestDetails(requestId);
+            res.status(200).json(result);
+        } catch (error) {
             throw error;
         }
     })
@@ -55,7 +97,22 @@ router.get('/health',
         try {
             const configTest = await controller.testConfiguration();
             healthStatus.services = configTest;
-            healthStatus.overallHealth = Object.values(configTest).every(status => status === true);
+            
+            // Test database connection
+            try {
+                const snowflakeClient = require('../database/snowflakeClient');
+                if (snowflakeClient.isConnected) {
+                    await snowflakeClient.checkConnection();
+                    healthStatus.services.databaseConnection = true;
+                } else {
+                    healthStatus.services.databaseConnection = false;
+                }
+            } catch (dbError) {
+                healthStatus.services.databaseConnection = false;
+                healthStatus.services.databaseError = dbError.message;
+            }
+            
+            healthStatus.overallHealth = Object.values(healthStatus.services).every(status => status === true);
         } catch (error) {
             healthStatus.services = { error: 'Configuration test failed' };
             healthStatus.overallHealth = false;

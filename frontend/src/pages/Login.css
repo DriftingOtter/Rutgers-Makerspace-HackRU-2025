@@ -1,13 +1,13 @@
 /* Rutgers Makerspace Inspired Login Page CSS */
 
 .login-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
 }
 
 .main-content {
-  padding: 3rem 0;
+  padding: 3rem 0 6rem 0;
   flex: 1;
   display: flex;
   justify-content: center;
