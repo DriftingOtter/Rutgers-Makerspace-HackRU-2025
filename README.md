@@ -4,18 +4,30 @@ A comprehensive 3D printing management system with user authentication, communit
 
 ## 🚀 Quick Start
 
-### Start Everything (Recommended)
+### Automated Setup (Recommended)
 ```bash
-./start-all.sh
+# Run the automated setup script
+./setup-project.sh
 ```
 
-### Start Individual Services
-```bash
-# Frontend only (port 8085)
-./start-frontend.sh
+This script will:
+- ✅ Check prerequisites (Node.js, npm)
+- ✅ Install all dependencies
+- ✅ Guide you through Firebase configuration
+- ✅ Create all necessary `.env` files
+- ✅ Provide Firebase Console setup instructions
 
-# API only (port 8080)
-./start-api.sh
+### Manual Setup
+See [SETUP_INSTRUCTIONS.md](./SETUP_INSTRUCTIONS.md) for detailed manual setup instructions.
+
+### Start the Application
+```bash
+# Start everything (after setup)
+./start-all.sh
+
+# Or start individual services
+./start-frontend.sh  # Frontend only (port 8085)
+./start-api.sh       # API only (port 8080)
 ```
 
 ## 🌐 Application URLs
