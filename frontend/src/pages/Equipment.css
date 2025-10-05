@@ -1,0 +1,226 @@
+/* Equipment Page Styles */
+.equipment-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.equipment-hero {
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.equipment-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: white;
+}
+
+.equipment-hero p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+  color: white;
+}
+
+.equipment-categories {
+  padding: 4rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.category-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #d32f2f;
+}
+
+.category-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.category-card h3 {
+  color: #d32f2f;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.category-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.category-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.category-card li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  color: #555;
+}
+
+.category-card li:last-child {
+  border-bottom: none;
+}
+
+.safety-training {
+  background: white;
+  padding: 4rem 0;
+  margin: 2rem 0;
+}
+
+.safety-training h2 {
+  text-align: center;
+  color: #d32f2f;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.safety-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.safety-info, .training-info {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #d32f2f;
+}
+
+.safety-info h3, .training-info h3 {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+}
+
+.safety-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.safety-info li {
+  padding: 0.5rem 0;
+  color: #555;
+}
+
+.training-times p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.booking-info {
+  background: #f8f9fa;
+  color: #333;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.booking-info h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #d32f2f;
+}
+
+.booking-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.booking-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+}
+
+.booking-card p {
+  color: #333;
+}
+
+.booking-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #d32f2f;
+}
+
+.reservation-info {
+  background: #e9ecef;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1.5rem 0;
+  border-left: 4px solid #d32f2f;
+}
+
+.reservation-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .equipment-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .equipment-categories {
+    grid-template-columns: 1fr;
+    padding: 2rem 0;
+  }
+  
+  .safety-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .booking-info h2 {
+    font-size: 2rem;
+  }
+}

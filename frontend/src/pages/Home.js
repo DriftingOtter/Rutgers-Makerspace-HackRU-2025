@@ -2,13 +2,26 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
 
+// Import the video file
+import makerspaceVideo from '../Images/Makerspace Tour at Rutgers University\'s Livingston Campus - Makerspaces (1080p, h264, youtube).mp4';
+
 const Home = () => {
   return (
     <div className="home">
       {/* Hero Section */}
       <section className="hero">
+        <video 
+          className="hero-video" 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+        >
+          <source src={makerspaceVideo} type="video/mp4" />
+        </video>
+        <div className="hero-overlay"></div>
         <div className="hero-container">
-          <h1 className="hero-title">RuMakerspace</h1>
+          <h1 className="hero-title">RUmakerspace</h1>
           <p className="hero-subtitle">Innovation • Creation • Collaboration</p>
           <div className="hero-buttons">
             <Link to="/about" className="btn btn-primary">Learn More</Link>
@@ -21,7 +34,7 @@ const Home = () => {
       <main className="main-content">
         <div className="container">
           <section className="features">
-            <h2>Welcome to Our Makerspace</h2>
+            <h2>Welcome to RUmakerspace</h2>
             <div className="features-grid">
               <div className="feature-card">
                 <h3>3D Printing</h3>

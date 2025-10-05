@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { signInWithEmail, signInWithGoogle, signUpWithEmail } from '../firebase/auth';
+import { signInWithEmail, signInWithGoogle, signUpWithEmail, signInAsAdmin } from '../firebase/auth';
 import './Login.css';
 
 const Login = () => {
@@ -16,13 +16,18 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setError: setAuthError } = useAuth();
+  const { user, setError: setAuthError, setUser } = useAuth();
 
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      const from = location.state?.from?.pathname || '/dashboard';
-      navigate(from, { replace: true });
+      // Check if user is admin
+      if (user.isAdmin) {
+        navigate('/admin', { replace: true });
+      } else {
+        const from = location.state?.from?.pathname || '/dashboard';
+        navigate(from, { replace: true });
+      }
     }
   }, [user, navigate, location]);
 
@@ -43,7 +48,13 @@ const Login = () => {
     
     // Validation
     if (!formData.email || !formData.password) {
-      setError('Please fill in both email and password fields.');
+      setError('Please fill in both email/username and password fields.');
+      return;
+    }
+
+    // Check if trying to sign up with admin credentials
+    if (isSignUp && formData.email === 'Admin') {
+      setError('Admin account cannot be created through sign up.');
       return;
     }
 
@@ -65,10 +76,20 @@ const Login = () => {
           setFormData({ email: '', password: '', displayName: '' });
         }
       } else {
-        result = await signInWithEmail(formData.email, formData.password);
-        if (result.user) {
-          const from = location.state?.from?.pathname || '/dashboard';
-          navigate(from, { replace: true });
+        // Check for admin credentials first
+        if (formData.email === 'Admin' && formData.password === 'Admin1') {
+          result = await signInAsAdmin(formData.email, formData.password);
+          if (result.user) {
+            // Update the auth context with admin user
+            setUser(result.user);
+            navigate('/admin', { replace: true });
+          }
+        } else {
+          result = await signInWithEmail(formData.email, formData.password);
+          if (result.user) {
+            const from = location.state?.from?.pathname || '/dashboard';
+            navigate(from, { replace: true });
+          }
         }
       }
       
@@ -153,14 +174,14 @@ const Login = () => {
                 )}
                 
                 <div className="form-group">
-                  <label htmlFor="email">Email:</label>
+                  <label htmlFor="email">Email/Username:</label>
                   <input 
-                    type="email" 
+                    type="text" 
                     id="email" 
                     name="email" 
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Enter your email"
+                    placeholder="Enter your email or username"
                     required 
                   />
                 </div>
@@ -223,7 +244,7 @@ const Login = () => {
                 <p><small>
                   {isSignUp 
                     ? 'By creating an account, you agree to our Terms of Service and Privacy Policy.'
-                    : 'Secure authentication powered by Firebase.'
+                    : 'Secure authentication powered by Firebase. Admin access: Use "Admin" as username and "Admin1" as password.'
                   }
                 </small></p>
               </div>

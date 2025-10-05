@@ -115,3 +115,51 @@ export const getCurrentUser = () => {
 export const isAuthenticated = () => {
   return !!auth.currentUser;
 };
+
+// Admin authentication (bypasses Firebase)
+export const signInAsAdmin = async (email, password) => {
+  try {
+    // Check for admin credentials
+    if (email === 'Admin' && password === 'Admin1') {
+      // Create a mock admin user object
+      const adminUser = {
+        uid: 'admin-uid',
+        email: 'Admin',
+        displayName: 'Admin',
+        isAdmin: true,
+        accessToken: 'admin-token'
+      };
+      
+      // Store admin session in localStorage
+      localStorage.setItem('adminUser', JSON.stringify(adminUser));
+      
+      return { user: adminUser, error: null };
+    } else {
+      return { user: null, error: 'Invalid admin credentials' };
+    }
+  } catch (error) {
+    return { user: null, error: error.message };
+  }
+};
+
+// Check if current user is admin
+export const isAdmin = () => {
+  const adminUser = localStorage.getItem('adminUser');
+  return adminUser && JSON.parse(adminUser).isAdmin;
+};
+
+// Get admin user from localStorage
+export const getAdminUser = () => {
+  const adminUser = localStorage.getItem('adminUser');
+  return adminUser ? JSON.parse(adminUser) : null;
+};
+
+// Sign out admin
+export const signOutAdmin = async () => {
+  try {
+    localStorage.removeItem('adminUser');
+    return { error: null };
+  } catch (error) {
+    return { error: error.message };
+  }
+};

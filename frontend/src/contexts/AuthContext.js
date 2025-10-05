@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChange } from '../firebase/auth';
+import { onAuthStateChange, getAdminUser } from '../firebase/auth';
 
 const AuthContext = createContext();
 
@@ -17,20 +17,30 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChange((user) => {
-      setUser(user);
+    // Check for admin user first
+    const adminUser = getAdminUser();
+    if (adminUser) {
+      setUser(adminUser);
+      setLoading(false);
+      return;
+    }
+
+    // Then check Firebase auth
+    const unsubscribe = onAuthStateChange((firebaseUser) => {
+      setUser(firebaseUser);
       setLoading(false);
       setError(null);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [setUser]);
 
   const value = {
     user,
     loading,
     error,
-    setError
+    setError,
+    setUser
   };
 
   return (
