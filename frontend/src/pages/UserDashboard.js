@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import ModelViewer from '../components/ModelViewer';
 import './UserDashboard.css';
 
 const UserDashboard = () => {
@@ -21,7 +22,11 @@ const UserDashboard = () => {
       status: "Completed",
       date: "2024-01-15",
       material: "PLA",
-      cost: 12.50
+      color: "Red",
+      cost: 12.50,
+      isPublic: true,
+      modelUrl: null,
+      fallbackImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop"
     },
     {
       id: 2,
@@ -30,7 +35,11 @@ const UserDashboard = () => {
       status: "In Progress",
       date: "2024-01-20",
       material: "PETG",
-      cost: 8.75
+      color: "Black",
+      cost: 8.75,
+      isPublic: false,
+      modelUrl: null,
+      fallbackImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=300&fit=crop"
     },
     {
       id: 3,
@@ -39,7 +48,11 @@ const UserDashboard = () => {
       status: "Pending",
       date: "2024-01-25",
       material: "ABS",
-      cost: 15.00
+      color: "White",
+      cost: 15.00,
+      isPublic: true,
+      modelUrl: null,
+      fallbackImage: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&h=300&fit=crop"
     }
   ];
 
@@ -51,7 +64,11 @@ const UserDashboard = () => {
       author: "MakerSpace Community",
       date: "2024-01-22",
       likes: 15,
-      downloads: 8
+      downloads: 8,
+      material: "PLA",
+      color: "Black",
+      modelUrl: null,
+      fallbackImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop"
     },
     {
       id: 2,
@@ -60,7 +77,11 @@ const UserDashboard = () => {
       author: "Accessibility Team",
       date: "2024-01-21",
       likes: 23,
-      downloads: 12
+      downloads: 12,
+      material: "PETG",
+      color: "White",
+      modelUrl: null,
+      fallbackImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=300&fit=crop"
     },
     {
       id: 3,
@@ -69,7 +90,11 @@ const UserDashboard = () => {
       author: "Science Department",
       date: "2024-01-20",
       likes: 18,
-      downloads: 6
+      downloads: 6,
+      material: "ABS",
+      color: "Grey",
+      modelUrl: null,
+      fallbackImage: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&h=300&fit=crop"
     }
   ];
 
@@ -125,6 +150,31 @@ const UserDashboard = () => {
       setCommunityRequests(mockCommunityRequests);
     }
   }, []);
+
+  const togglePublicStatus = async (requestId, isPublic) => {
+    try {
+      // In a real app, this would be an API call
+      setPrintRequests(prev => 
+        prev.map(req => 
+          req.id === requestId 
+            ? { ...req, isPublic: !isPublic }
+            : req
+        )
+      );
+      
+      // Update community requests if making public
+      if (!isPublic) {
+        const request = printRequests.find(req => req.id === requestId);
+        if (request) {
+          setCommunityRequests(prev => [...prev, { ...request, author: user?.displayName || 'You' }]);
+        }
+      } else {
+        setCommunityRequests(prev => prev.filter(req => req.id !== requestId));
+      }
+    } catch (error) {
+      console.error('Error updating public status:', error);
+    }
+  };
 
   useEffect(() => {
     // Load user's print requests from Snowflake (or show error)
@@ -235,6 +285,23 @@ const UserDashboard = () => {
               </div>
             </div>
             <p className="community-description">{request.description}</p>
+            
+            {/* 3D Model Viewer */}
+            <div className="model-viewer-container">
+              <ModelViewer 
+                modelUrl={request.modelUrl}
+                fallbackImage={request.fallbackImage}
+                width="100%"
+                height="200px"
+                showControls={true}
+                autoRotate={true}
+              />
+            </div>
+            
+            <div className="community-meta-details">
+              <span className="material">{request.material} - {request.color}</span>
+            </div>
+            
             <div className="community-stats">
               <span className="likes">❤️ {request.likes}</span>
               <span className="downloads">📥 {request.downloads}</span>
@@ -266,6 +333,19 @@ const UserDashboard = () => {
                 <h3>{request.title}</h3>
                 <p>{request.description}</p>
               </div>
+              {/* 3D Model Viewer */}
+              <div className="model-viewer-container">
+                <h4>3D Model Preview</h4>
+                <ModelViewer 
+                  modelUrl={request.modelUrl}
+                  fallbackImage={request.fallbackImage}
+                  width="100%"
+                  height="250px"
+                  showControls={true}
+                  autoRotate={true}
+                />
+              </div>
+              
               <div className="history-item-details">
                 <div className="detail-group">
                   <label>Status:</label>
@@ -279,12 +359,34 @@ const UserDashboard = () => {
                 </div>
                 <div className="detail-group">
                   <label>Material:</label>
-                  <span>{request.material}</span>
+                  <span>{request.material} - {request.color}</span>
                 </div>
                 <div className="detail-group">
                   <label>Cost:</label>
                   <span>${request.cost}</span>
                 </div>
+              </div>
+              
+              {/* Make Public Toggle */}
+              <div className="public-toggle">
+                <label className="toggle-label">
+                  <input
+                    type="checkbox"
+                    checked={request.isPublic}
+                    onChange={() => togglePublicStatus(request.id, request.isPublic)}
+                    className="toggle-input"
+                  />
+                  <span className="toggle-slider"></span>
+                  <span className="toggle-text">
+                    {request.isPublic ? 'Public' : 'Private'}
+                  </span>
+                </label>
+                <small>
+                  {request.isPublic 
+                    ? 'This project is visible in the community' 
+                    : 'This project is private to you only'
+                  }
+                </small>
               </div>
               <div className="history-item-actions">
                 <button className="btn btn-outline">View Details</button>

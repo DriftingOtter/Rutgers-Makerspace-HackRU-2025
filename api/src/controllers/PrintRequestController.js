@@ -81,6 +81,9 @@ class PrintRequestController {
                 geminiAnalysis
             );
 
+            // Step 8: Save to database
+            await this.#saveToDatabase(printRequest, materialRecommendation, printerSelection, pricing, requestData);
+
             if (this.#debugMode) {
                 console.log('Print request processed successfully:', {
                     requestId: printRequest.requestId,
@@ -457,6 +460,86 @@ class PrintRequestController {
         }
 
         return results;
+    }
+
+    /**
+     * Save print request to database
+     * @private
+     * @param {PrintRequest} printRequest - Print request object
+     * @param {Object} materialRecommendation - Material recommendation
+     * @param {Object} printerSelection - Printer selection
+     * @param {Object} pricing - Pricing information
+     * @param {Object} requestData - Original request data
+     */
+    async #saveToDatabase(printRequest, materialRecommendation, printerSelection, pricing, requestData) {
+        try {
+            const snowflakeClient = require('../database/snowflakeClient');
+            
+            // Ensure we're using the correct database and schema
+            await snowflakeClient.execute('USE DATABASE RUTGERS_MAKERSPACE');
+            await snowflakeClient.execute('USE SCHEMA MAKERSPACE');
+
+            // Get or create user
+            let userId = requestData.userEmail || 'anonymous@rutgers.edu';
+            const userName = requestData.userName || 'Anonymous User';
+            
+            // Check if user exists, if not create them
+            const existingUser = await snowflakeClient.execute(
+                'SELECT user_id FROM users WHERE email = ?', 
+                [userId]
+            );
+            
+            if (existingUser.length === 0) {
+                // Create new user
+                const newUserId = `user-${Date.now()}`;
+                await snowflakeClient.execute(`
+                    INSERT INTO users (user_id, email, display_name, status, created_at)
+                    VALUES (?, ?, ?, 'active', CURRENT_TIMESTAMP)
+                `, [newUserId, userId, userName]);
+                userId = newUserId;
+            } else {
+                userId = existingUser[0].USER_ID;
+            }
+
+            // Save print request
+            await snowflakeClient.execute(`
+                INSERT INTO print_requests (
+                    request_id, user_id, project_name, description, material, color, 
+                    quantity, urgency, special_instructions, file_name, file_size, 
+                    file_type, file_url, model_url, fallback_image_url, status, 
+                    estimated_cost, printer_id, print_settings, is_public, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            `, [
+                printRequest.requestId,
+                userId,
+                printRequest.projectName,
+                printRequest.description,
+                materialRecommendation.material,
+                printRequest.color,
+                printRequest.quantity,
+                printRequest.urgency,
+                printRequest.specialInstructions || '',
+                requestData.file?.name || '',
+                requestData.file?.size || 0,
+                requestData.file?.name?.split('.').pop()?.toLowerCase() || 'stl',
+                requestData.file ? `https://storage.example.com/files/${requestData.file.name}` : '',
+                null, // model_url
+                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop', // fallback_image_url
+                'pending',
+                pricing.total,
+                printerSelection.printer?.id || null,
+                JSON.stringify(printerSelection.settings || {}),
+                false // is_public
+            ]);
+
+            if (this.#debugMode) {
+                console.log('Print request saved to database:', printRequest.requestId);
+            }
+
+        } catch (error) {
+            console.error('Failed to save print request to database:', error.message);
+            // Don't throw error - we don't want to fail the request if DB save fails
+        }
     }
 }
 

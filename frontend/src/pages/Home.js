@@ -28,13 +28,10 @@ const Home = () => {
             <Link to="/login" className="btn btn-primary">Print Request</Link>
           </div>
         </div>
-      </section>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <div className="container">
-          <section className="features">
-            <h2>Welcome to RUmakerspace</h2>
+        
+        {/* Features Cards Overlay */}
+        <div className="features-overlay">
+          <div className="container">
             <div className="features-grid">
               <div className="feature-card">
                 <h3>3D Printing</h3>
@@ -49,9 +46,9 @@ const Home = () => {
                 <p>Work with fellow makers and bring your ideas to life together.</p>
               </div>
             </div>
-          </section>
+          </div>
         </div>
-      </main>
+      </section>
     </div>
   );
 };

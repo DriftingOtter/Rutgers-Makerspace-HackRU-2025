@@ -204,8 +204,58 @@ router.get('/user/print-requests',
     requestLogger,
     asyncHandler(async (req, res) => {
         try {
-            // For now, return mock data since Snowflake is not fully configured
-            // In production, this would query the Snowflake database
+            const snowflakeClient = require('../database/snowflakeClient');
+            
+            // Use database
+            await snowflakeClient.execute('USE DATABASE RUTGERS_MAKERSPACE');
+            await snowflakeClient.execute('USE SCHEMA MAKERSPACE');
+
+            // Get all print requests (in a real app, you'd filter by user)
+            const requests = await snowflakeClient.execute(`
+                SELECT 
+                    request_id as id,
+                    project_name as title,
+                    description,
+                    status,
+                    created_at as date,
+                    material,
+                    color,
+                    estimated_cost as cost,
+                    user_id,
+                    is_public,
+                    fallback_image_url as fallbackImage,
+                    model_url as modelUrl
+                FROM print_requests 
+                ORDER BY created_at DESC
+            `);
+
+            // Transform data for frontend
+            const printRequests = requests.map(req => ({
+                id: req.ID,
+                title: req.TITLE,
+                description: req.DESCRIPTION,
+                status: req.STATUS,
+                date: req.DATE?.toISOString().split('T')[0] || '2024-01-01',
+                material: req.MATERIAL,
+                color: req.COLOR,
+                cost: req.COST || 0,
+                userId: req.USER_ID,
+                isPublic: req.IS_PUBLIC || false,
+                fallbackImage: req.FALLBACKIMAGE,
+                modelUrl: req.MODELURL
+            }));
+
+            res.status(200).json({
+                status: 'success',
+                data: {
+                    printRequests: printRequests,
+                    count: printRequests.length
+                },
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error('Error fetching print requests:', error);
+            // Fallback to mock data
             const mockPrintRequests = [
                 {
                     id: 1,
@@ -214,28 +264,11 @@ router.get('/user/print-requests',
                     status: "Completed",
                     date: "2024-01-15",
                     material: "PLA",
+                    color: "Red",
                     cost: 12.50,
-                    userId: "user123"
-                },
-                {
-                    id: 2,
-                    title: "Arduino Mount",
-                    description: "Mounting bracket for Arduino project",
-                    status: "In Progress",
-                    date: "2024-01-20",
-                    material: "PETG",
-                    cost: 8.75,
-                    userId: "user123"
-                },
-                {
-                    id: 3,
-                    title: "Prototype Housing",
-                    description: "Protective housing for electronics project",
-                    status: "Pending",
-                    date: "2024-01-25",
-                    material: "ABS",
-                    cost: 15.00,
-                    userId: "user123"
+                    userId: "user123",
+                    isPublic: true,
+                    fallbackImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop"
                 }
             ];
 
@@ -244,12 +277,10 @@ router.get('/user/print-requests',
                 data: {
                     printRequests: mockPrintRequests,
                     count: mockPrintRequests.length,
-                    message: 'Note: This is mock data. Snowflake database integration pending.'
+                    message: 'Using fallback data due to database error.'
                 },
                 timestamp: new Date().toISOString()
             });
-        } catch (error) {
-            throw error;
         }
     })
 );
@@ -263,7 +294,58 @@ router.get('/community/print-requests',
     requestLogger,
     asyncHandler(async (req, res) => {
         try {
-            // Mock community data
+            const snowflakeClient = require('../database/snowflakeClient');
+            
+            // Use database
+            await snowflakeClient.execute('USE DATABASE RUTGERS_MAKERSPACE');
+            await snowflakeClient.execute('USE SCHEMA MAKERSPACE');
+
+            // Get public print requests with user info
+            const requests = await snowflakeClient.execute(`
+                SELECT 
+                    pr.request_id as id,
+                    pr.project_name as title,
+                    pr.description,
+                    u.display_name as author,
+                    pr.created_at as date,
+                    pr.material,
+                    pr.color,
+                    pr.is_public,
+                    pr.fallback_image_url as fallbackImage,
+                    pr.model_url as modelUrl
+                FROM print_requests pr
+                JOIN users u ON pr.user_id = u.user_id
+                WHERE pr.is_public = true
+                ORDER BY pr.created_at DESC
+            `);
+
+            // Transform data for frontend
+            const communityRequests = requests.map(req => ({
+                id: req.ID,
+                title: req.TITLE,
+                description: req.DESCRIPTION,
+                author: req.AUTHOR || 'Anonymous',
+                date: req.DATE?.toISOString().split('T')[0] || '2024-01-01',
+                material: req.MATERIAL,
+                color: req.COLOR,
+                likes: Math.floor(Math.random() * 30) + 5, // Random likes for demo
+                downloads: Math.floor(Math.random() * 20) + 2, // Random downloads for demo
+                isPublic: req.IS_PUBLIC || false,
+                fallbackImage: req.FALLBACKIMAGE,
+                modelUrl: req.MODELURL
+            }));
+
+            res.status(200).json({
+                status: 'success',
+                data: {
+                    requests: communityRequests,
+                    count: communityRequests.length
+                },
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error('Error fetching community requests:', error);
+            // Fallback to mock data
             const mockCommunityRequests = [
                 {
                     id: 1,
@@ -271,29 +353,12 @@ router.get('/community/print-requests',
                     description: "Lightweight drone frame design for educational purposes",
                     author: "MakerSpace Community",
                     date: "2024-01-22",
+                    material: "PLA",
+                    color: "Black",
                     likes: 15,
                     downloads: 8,
-                    isPublic: true
-                },
-                {
-                    id: 2,
-                    title: "Accessible Door Handle",
-                    description: "3D printed door handle for accessibility",
-                    author: "Accessibility Team",
-                    date: "2024-01-21",
-                    likes: 23,
-                    downloads: 12,
-                    isPublic: true
-                },
-                {
-                    id: 3,
-                    title: "Lab Equipment Holder",
-                    description: "Custom holder for laboratory equipment",
-                    author: "Science Department",
-                    date: "2024-01-20",
-                    likes: 18,
-                    downloads: 6,
-                    isPublic: true
+                    isPublic: true,
+                    fallbackImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop"
                 }
             ];
 
@@ -301,12 +366,11 @@ router.get('/community/print-requests',
                 status: 'success',
                 data: {
                     requests: mockCommunityRequests,
-                    count: mockCommunityRequests.length
+                    count: mockCommunityRequests.length,
+                    message: 'Using fallback data due to database error.'
                 },
                 timestamp: new Date().toISOString()
             });
-        } catch (error) {
-            throw error;
         }
     })
 );

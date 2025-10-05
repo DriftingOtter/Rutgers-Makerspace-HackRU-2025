@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => unsubscribe();
-  }, [setUser]);
+  }, []);
 
   const value = {
     user,

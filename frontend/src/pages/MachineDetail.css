@@ -83,6 +83,14 @@
   text-align: center;
 }
 
+/* Fix for red text on red background in machine header */
+.machine-header h1 {
+  color: white !important;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
 .equipment-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

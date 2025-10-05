@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { signOutAdmin } from '../firebase/auth';
+import ModelViewer from '../components/ModelViewer';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -10,6 +11,8 @@ const AdminDashboard = () => {
   const [printRequests, setPrintRequests] = useState([]);
   const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedEquipment, setSelectedEquipment] = useState(null);
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
@@ -22,10 +25,82 @@ const AdminDashboard = () => {
   ];
 
   const mockPrintRequests = [
-    { id: 1, user: 'John Doe', title: 'Phone Case', status: 'Completed', date: '2024-01-25', cost: 12.50 },
-    { id: 2, user: 'Jane Smith', title: 'Prototype Housing', status: 'In Progress', date: '2024-01-24', cost: 18.75 },
-    { id: 3, user: 'Mike Johnson', title: 'Arduino Mount', status: 'Pending', date: '2024-01-23', cost: 8.25 },
-    { id: 4, user: 'Sarah Wilson', title: 'Custom Bracket', status: 'Completed', date: '2024-01-22', cost: 15.00 }
+    { 
+      id: 1, 
+      user: 'John Doe', 
+      email: 'john.doe@rutgers.edu',
+      title: 'Phone Case', 
+      description: 'Custom phone case for iPhone 15 with Rutgers logo',
+      status: 'Completed', 
+      date: '2024-01-25', 
+      cost: 12.50,
+      material: 'PLA',
+      color: 'Red',
+      printer: 'Prusa i3 MK3S+',
+      printTime: '2.5 hours',
+      fileSize: '2.3 MB',
+      notes: 'High quality print, customer satisfied',
+      isPublic: true,
+      modelUrl: null,
+      fallbackImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop'
+    },
+    { 
+      id: 2, 
+      user: 'Jane Smith', 
+      email: 'jane.smith@rutgers.edu',
+      title: 'Prototype Housing', 
+      description: 'Protective housing for electronics project',
+      status: 'In Progress', 
+      date: '2024-01-24', 
+      cost: 18.75,
+      material: 'PETG',
+      color: 'Black',
+      printer: 'Ultimaker S5',
+      printTime: '4.2 hours',
+      fileSize: '5.1 MB',
+      notes: 'Currently printing, 60% complete',
+      isPublic: false,
+      modelUrl: null,
+      fallbackImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=300&fit=crop'
+    },
+    { 
+      id: 3, 
+      user: 'Mike Johnson', 
+      email: 'mike.johnson@rutgers.edu',
+      title: 'Arduino Mount', 
+      description: 'Mounting bracket for Arduino project',
+      status: 'Pending', 
+      date: '2024-01-23', 
+      cost: 8.25,
+      material: 'PLA',
+      color: 'White',
+      printer: 'Prusa i3 MK3S+',
+      printTime: '1.8 hours',
+      fileSize: '1.2 MB',
+      notes: 'Waiting for material restock',
+      isPublic: true,
+      modelUrl: null,
+      fallbackImage: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&h=300&fit=crop'
+    },
+    { 
+      id: 4, 
+      user: 'Sarah Wilson', 
+      email: 'sarah.wilson@rutgers.edu',
+      title: 'Custom Bracket', 
+      description: 'Custom bracket for lab equipment',
+      status: 'Completed', 
+      date: '2024-01-22', 
+      cost: 15.00,
+      material: 'ABS',
+      color: 'Carbon Fiber Reinforced',
+      printer: 'Formlabs Form 3',
+      printTime: '3.1 hours',
+      fileSize: '3.4 MB',
+      notes: 'Excellent quality, ready for pickup',
+      isPublic: false,
+      modelUrl: null,
+      fallbackImage: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&h=300&fit=crop'
+    }
   ];
 
   const mockEquipment = [
@@ -227,7 +302,12 @@ const AdminDashboard = () => {
                 <td>{request.date}</td>
                 <td>${request.cost}</td>
                 <td>
-                  <button className="btn btn-sm btn-primary">View</button>
+                  <button 
+                    className="btn btn-sm btn-primary"
+                    onClick={() => setSelectedRequest(request)}
+                  >
+                    View
+                  </button>
                   <button className="btn btn-sm btn-outline">Edit</button>
                 </td>
               </tr>
@@ -260,13 +340,173 @@ const AdminDashboard = () => {
             </div>
             <div className="equipment-actions">
               <button className="btn btn-sm btn-outline">Schedule Maintenance</button>
-              <button className="btn btn-sm btn-primary">View Details</button>
+              <button 
+                className="btn btn-sm btn-primary"
+                onClick={() => setSelectedEquipment(item)}
+              >
+                View Details
+              </button>
             </div>
           </div>
         ))}
       </div>
     </div>
   );
+
+  // Print Request Detail Modal
+  const renderPrintRequestModal = () => {
+    if (!selectedRequest) return null;
+
+    return (
+      <div className="modal-overlay" onClick={() => setSelectedRequest(null)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2>Print Request Details</h2>
+            <button 
+              className="close-btn"
+              onClick={() => setSelectedRequest(null)}
+            >
+              ×
+            </button>
+          </div>
+          <div className="modal-body">
+            {/* 3D Model Viewer */}
+            <div className="model-viewer-section">
+              <h3>3D Model Preview</h3>
+              <ModelViewer 
+                modelUrl={selectedRequest.modelUrl}
+                fallbackImage={selectedRequest.fallbackImage}
+                width="100%"
+                height="300px"
+                showControls={true}
+                autoRotate={true}
+              />
+            </div>
+
+            <div className="request-details">
+              <div className="detail-row">
+                <strong>Request ID:</strong> #{selectedRequest.id}
+              </div>
+              <div className="detail-row">
+                <strong>User:</strong> {selectedRequest.user} ({selectedRequest.email})
+              </div>
+              <div className="detail-row">
+                <strong>Title:</strong> {selectedRequest.title}
+              </div>
+              <div className="detail-row">
+                <strong>Description:</strong> {selectedRequest.description}
+              </div>
+              <div className="detail-row">
+                <strong>Status:</strong> 
+                <span className={`status ${getStatusColor(selectedRequest.status)}`}>
+                  {selectedRequest.status}
+                </span>
+              </div>
+              <div className="detail-row">
+                <strong>Date:</strong> {selectedRequest.date}
+              </div>
+              <div className="detail-row">
+                <strong>Cost:</strong> ${selectedRequest.cost}
+              </div>
+              <div className="detail-row">
+                <strong>Material:</strong> {selectedRequest.material}
+              </div>
+              <div className="detail-row">
+                <strong>Color:</strong> {selectedRequest.color}
+              </div>
+              <div className="detail-row">
+                <strong>Printer:</strong> {selectedRequest.printer}
+              </div>
+              <div className="detail-row">
+                <strong>Print Time:</strong> {selectedRequest.printTime}
+              </div>
+              <div className="detail-row">
+                <strong>File Size:</strong> {selectedRequest.fileSize}
+              </div>
+              <div className="detail-row">
+                <strong>Public:</strong> 
+                <span className={`status ${selectedRequest.isPublic ? 'status-success' : 'status-danger'}`}>
+                  {selectedRequest.isPublic ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div className="detail-row">
+                <strong>Notes:</strong> {selectedRequest.notes}
+              </div>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-primary">Update Status</button>
+            <button className="btn btn-outline">Edit Request</button>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setSelectedRequest(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Equipment Detail Modal
+  const renderEquipmentModal = () => {
+    if (!selectedEquipment) return null;
+
+    return (
+      <div className="modal-overlay" onClick={() => setSelectedEquipment(null)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2>Equipment Details</h2>
+            <button 
+              className="close-btn"
+              onClick={() => setSelectedEquipment(null)}
+            >
+              ×
+            </button>
+          </div>
+          <div className="modal-body">
+            <div className="equipment-details">
+              <div className="detail-row">
+                <strong>Name:</strong> {selectedEquipment.name}
+              </div>
+              <div className="detail-row">
+                <strong>Type:</strong> {selectedEquipment.type}
+              </div>
+              <div className="detail-row">
+                <strong>Status:</strong> 
+                <span className={`status ${getStatusColor(selectedEquipment.status)}`}>
+                  {selectedEquipment.status}
+                </span>
+              </div>
+              <div className="detail-row">
+                <strong>Last Maintenance:</strong> {selectedEquipment.lastMaintenance}
+              </div>
+              <div className="detail-row">
+                <strong>Next Maintenance:</strong> {selectedEquipment.nextMaintenance || 'Not scheduled'}
+              </div>
+              <div className="detail-row">
+                <strong>Usage Hours:</strong> {selectedEquipment.usageHours || 'N/A'}
+              </div>
+              <div className="detail-row">
+                <strong>Location:</strong> {selectedEquipment.location || 'Main Lab'}
+              </div>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-primary">Schedule Maintenance</button>
+            <button className="btn btn-outline">Edit Equipment</button>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setSelectedEquipment(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -339,6 +579,10 @@ const AdminDashboard = () => {
           </div>
         </div>
       </main>
+      
+      {/* Modals */}
+      {renderPrintRequestModal()}
+      {renderEquipmentModal()}
     </div>
   );
 };

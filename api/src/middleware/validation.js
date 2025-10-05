@@ -253,16 +253,87 @@ const validateFileUpload = (req, res, next) => {
 const sanitizeInput = (req, res, next) => {
     try {
         // Sanitize string fields
-        const stringFields = ['firstName', 'lastName', 'projectDescription', 'preferredColor'];
+        const stringFields = [
+            'firstName', 'lastName', 'projectDescription', 'preferredColor',
+            'projectName', 'description', 'specialInstructions', 'userEmail', 'userName'
+        ];
+        
+        // SQL injection patterns to detect and block
+        const sqlInjectionPatterns = [
+            /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
+            /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,
+            /(\b(OR|AND)\s+['"]\s*=\s*['"])/gi,
+            /(UNION\s+SELECT)/gi,
+            /(DROP\s+TABLE)/gi,
+            /(DELETE\s+FROM)/gi,
+            /(INSERT\s+INTO)/gi,
+            /(UPDATE\s+SET)/gi,
+            /(ALTER\s+TABLE)/gi,
+            /(EXEC\s*\()/gi,
+            /(SCRIPT\s*\()/gi,
+            /(;\s*--)/gi,
+            /(;\s*\/\*)/gi,
+            /(\/\*.*?\*\/)/gi,
+            /(--.*$)/gm,
+            /(0x[0-9a-fA-F]+)/gi,
+            /(CHAR\s*\()/gi,
+            /(ASCII\s*\()/gi,
+            /(SUBSTRING\s*\()/gi,
+            /(LEN\s*\()/gi,
+            /(COUNT\s*\()/gi,
+            /(SUM\s*\()/gi,
+            /(AVG\s*\()/gi,
+            /(MAX\s*\()/gi,
+            /(MIN\s*\()/gi
+        ];
         
         for (const field of stringFields) {
             if (req.body[field] && typeof req.body[field] === 'string') {
+                let value = req.body[field];
+                
+                // Check for SQL injection patterns
+                for (const pattern of sqlInjectionPatterns) {
+                    if (pattern.test(value)) {
+                        console.warn(`Potential SQL injection detected in field ${field}:`, value);
+                        return res.status(400).json({
+                            status: 'error',
+                            message: 'Invalid input detected',
+                            code: 400,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                }
+                
                 // Remove potentially dangerous characters
-                req.body[field] = req.body[field]
+                value = value
                     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
                     .replace(/javascript:/gi, '')
                     .replace(/on\w+\s*=/gi, '')
+                    .replace(/<[^>]*>/g, '') // Remove HTML tags
+                    .replace(/['"]/g, '') // Remove quotes
+                    .replace(/[;\\]/g, '') // Remove semicolons and backslashes
                     .trim();
+                
+                req.body[field] = value;
+            }
+        }
+        
+        // Sanitize query parameters
+        if (req.query) {
+            for (const [key, value] of Object.entries(req.query)) {
+                if (typeof value === 'string') {
+                    for (const pattern of sqlInjectionPatterns) {
+                        if (pattern.test(value)) {
+                            console.warn(`Potential SQL injection detected in query param ${key}:`, value);
+                            return res.status(400).json({
+                                status: 'error',
+                                message: 'Invalid query parameter detected',
+                                code: 400,
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+                    }
+                }
             }
         }
         
