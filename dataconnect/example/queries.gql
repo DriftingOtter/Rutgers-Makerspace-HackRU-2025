@@ -1,0 +1,46 @@
+mutation CreatePrintRequest($materialId: UUID, $color: String, $fileDownloadUrl: String!, $modelFileName: String!, $notesFromUser: String) @auth(level: USER) {
+  printRequest_insert(data: {
+    materialId: $materialId,
+    color: $color,
+    fileDownloadUrl: $fileDownloadUrl,
+    modelFileName: $modelFileName,
+    notesFromUser: $notesFromUser,
+    requesterId_expr: "auth.uid",
+    printStatus: "pending"
+  })
+}
+
+query GetPrintRequest($id: UUID!) @auth(level: USER) {
+  printRequest(id: $id) {
+    id
+    material {
+      id
+      name
+    }
+    color
+    fileDownloadUrl
+    modelFileName
+    notesFromUser
+    printStatus
+    requester {
+      id
+      displayName
+    }
+  }
+}
+
+mutation UpdatePrintJobStatus($id: UUID!, $jobStatus: String!) @auth(expr: "auth.token.isStaff == true") {
+  printJob_update(id: $id, data: {
+    jobStatus: $jobStatus
+  })
+}
+
+query ListAvailablePrinters($capabilities: [String!]) @auth(level: USER) {
+  printers(where: {printerStatus: {eq: "available"}, capabilities: {includesAll: $capabilities}}) {
+    id
+    name
+    model
+    location
+    capabilities
+  }
+}

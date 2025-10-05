@@ -1,0 +1,77 @@
+mutation SeedDatabase @auth(level: NO_ACCESS) {
+  material_upsertMany(
+    data: [
+      {
+        id: "550e8400-e29b-41d4-a716-446655440000"
+        colors: ["red", "blue"]
+        costPerGram: 0.05
+        createdAt: "2024-01-01T00:00:00Z"
+        description: "Generic PLA"
+        name: "PLA"
+        type: "Plastic"
+      }
+      {
+        id: "550e8400-e29b-41d4-a716-446655440001"
+        colors: ["black", "white"]
+        costPerGram: 0.10
+        createdAt: "2024-01-01T00:00:00Z"
+        description: "Strong ABS"
+        name: "ABS"
+        type: "Plastic"
+      }
+      {
+        id: "550e8400-e29b-41d4-a716-446655440002"
+        colors: ["silver", "gray"]
+        costPerGram: 0.20
+        createdAt: "2024-01-01T00:00:00Z"
+        description: "Durable PETG"
+        name: "PETG"
+        type: "Plastic"
+      }
+    ]
+  )
+  printer_upsertMany(
+    data: [
+      {
+        id: "550e8400-e29b-41d4-a716-446655440003"
+        capabilities: ["PLA", "ABS"]
+        createdAt: "2024-01-01T00:00:00Z"
+        location: "Makerspace"
+        model: "Prusa i3 MK3S+"
+        name: "Printer 1"
+        printVolume: "250x210x210"
+        printerStatus: "Available"
+      }
+      {
+        id: "550e8400-e29b-41d4-a716-446655440004"
+        capabilities: ["PETG", "TPU"]
+        createdAt: "2024-01-01T00:00:00Z"
+        location: "Makerspace"
+        model: "Creality Ender 3"
+        name: "Printer 2"
+        printVolume: "220x220x250"
+        printerStatus: "Available"
+      }
+    ]
+  )
+  user_upsertMany(
+    data: [
+      {
+        id: "550e8400-e29b-41d4-a716-446655440005"
+        displayName: "John Doe"
+        email: "john.doe@example.com"
+        isStaff: true
+        phoneNumber: "123-456-7890"
+        rutgersId: "123456789"
+      }
+      {
+        id: "550e8400-e29b-41d4-a716-446655440006"
+        displayName: "Jane Smith"
+        email: "jane.smith@example.com"
+        isStaff: false
+        phoneNumber: "098-765-4321"
+        rutgersId: "987654321"
+      }
+    ]
+  )
+}

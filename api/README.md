@@ -6,14 +6,24 @@ A production-grade Node.js API that integrates with Google Gemini AI to provide 
 
 ## 🚀 Features
 
-- **AI-Powered Analysis**: Uses Google Gemini API to analyze project descriptions and images
+### 🤖 AI-Powered Analysis
+- **Google Gemini Integration**: Analyzes project descriptions and images
 - **Intelligent Material Selection**: Recommends optimal materials based on project requirements
 - **Smart Printer Selection**: Chooses the best printer based on material compatibility and project needs
 - **Automated Print Settings**: Optimizes layer height, infill, supports, and other parameters
 - **Accurate Cost Calculation**: Provides detailed pricing based on Rutgers Makerspace rates
+
+### 🔐 User Management & Community
+- **User Print History**: Track individual user print requests
+- **Community Sharing**: Public print request sharing and collaboration
+- **Account Management**: User statistics and request tracking
+- **Protected Endpoints**: Secure API access with authentication
+
+### 🛡️ Security & Reliability
 - **Comprehensive Validation**: Input validation and sanitization for security
 - **Professional Logging**: Structured logging with Winston for monitoring and debugging
 - **Error Handling**: Robust error handling with user-friendly messages
+- **Rate Limiting**: Prevents abuse and ensures fair usage
 
 ## 🏗️ Architecture
 
@@ -81,9 +91,22 @@ src/
 
 ## 📚 API Endpoints
 
-### POST /api/print-request
-Process a complete 3D printing request with AI analysis.
+### 🔐 Authentication & User Management
+- `GET /api/user/print-requests` - Get user's print request history
+- `GET /api/community/print-requests` - Get public community requests
 
+### 🖨️ 3D Printing Core
+- `POST /api/print-request` - Process 3D printing request with AI analysis
+- `GET /api/materials` - Get available materials and their properties
+- `GET /api/printers` - Get available printers and their capabilities
+- `GET /api/pricing` - Get pricing information for materials and services
+- `POST /api/estimate-cost` - Get cost estimate for a project
+
+### 🔧 System
+- `GET /api/health` - Health check endpoint with service status
+- `GET /api/config` - Get API configuration and capabilities
+
+### Example: Process Print Request
 **Request Body:**
 ```json
 {
@@ -129,24 +152,6 @@ Process a complete 3D printing request with AI analysis.
   }
 }
 ```
-
-### GET /api/materials
-Get available materials and their properties.
-
-### GET /api/printers
-Get available printers and their capabilities.
-
-### GET /api/pricing
-Get pricing information for materials and services.
-
-### POST /api/estimate-cost
-Get cost estimate for a project without full processing.
-
-### GET /api/health
-Health check endpoint with service status.
-
-### GET /api/config
-Get API configuration and capabilities.
 
 ## 🔧 Configuration
 

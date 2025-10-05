@@ -196,6 +196,122 @@ router.post('/estimate-cost',
 );
 
 /**
+ * @route GET /api/user/print-requests
+ * @description Get user's print request history from Snowflake
+ * @access Protected (requires authentication)
+ */
+router.get('/user/print-requests',
+    requestLogger,
+    asyncHandler(async (req, res) => {
+        try {
+            // For now, return mock data since Snowflake is not fully configured
+            // In production, this would query the Snowflake database
+            const mockPrintRequests = [
+                {
+                    id: 1,
+                    title: "Custom Phone Case",
+                    description: "3D printed phone case for iPhone 15",
+                    status: "Completed",
+                    date: "2024-01-15",
+                    material: "PLA",
+                    cost: 12.50,
+                    userId: "user123"
+                },
+                {
+                    id: 2,
+                    title: "Arduino Mount",
+                    description: "Mounting bracket for Arduino project",
+                    status: "In Progress",
+                    date: "2024-01-20",
+                    material: "PETG",
+                    cost: 8.75,
+                    userId: "user123"
+                },
+                {
+                    id: 3,
+                    title: "Prototype Housing",
+                    description: "Protective housing for electronics project",
+                    status: "Pending",
+                    date: "2024-01-25",
+                    material: "ABS",
+                    cost: 15.00,
+                    userId: "user123"
+                }
+            ];
+
+            res.status(200).json({
+                status: 'success',
+                data: {
+                    printRequests: mockPrintRequests,
+                    count: mockPrintRequests.length,
+                    message: 'Note: This is mock data. Snowflake database integration pending.'
+                },
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            throw error;
+        }
+    })
+);
+
+/**
+ * @route GET /api/community/print-requests
+ * @description Get public community print requests
+ * @access Public
+ */
+router.get('/community/print-requests',
+    requestLogger,
+    asyncHandler(async (req, res) => {
+        try {
+            // Mock community data
+            const mockCommunityRequests = [
+                {
+                    id: 1,
+                    title: "Open Source Drone Frame",
+                    description: "Lightweight drone frame design for educational purposes",
+                    author: "MakerSpace Community",
+                    date: "2024-01-22",
+                    likes: 15,
+                    downloads: 8,
+                    isPublic: true
+                },
+                {
+                    id: 2,
+                    title: "Accessible Door Handle",
+                    description: "3D printed door handle for accessibility",
+                    author: "Accessibility Team",
+                    date: "2024-01-21",
+                    likes: 23,
+                    downloads: 12,
+                    isPublic: true
+                },
+                {
+                    id: 3,
+                    title: "Lab Equipment Holder",
+                    description: "Custom holder for laboratory equipment",
+                    author: "Science Department",
+                    date: "2024-01-20",
+                    likes: 18,
+                    downloads: 6,
+                    isPublic: true
+                }
+            ];
+
+            res.status(200).json({
+                status: 'success',
+                data: {
+                    requests: mockCommunityRequests,
+                    count: mockCommunityRequests.length
+                },
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            throw error;
+        }
+    })
+);
+
+/**
  * @route GET /api/config
  * @description Get API configuration and capabilities
  * @access Public
@@ -215,6 +331,8 @@ router.get('/config',
                         'GET /api/printers - Get available printers',
                         'GET /api/pricing - Get pricing information',
                         'POST /api/estimate-cost - Get cost estimate',
+                        'GET /api/user/print-requests - Get user print history',
+                        'GET /api/community/print-requests - Get community requests',
                         'GET /api/health - Health check',
                         'GET /api/config - This configuration'
                     ]
@@ -224,7 +342,9 @@ router.get('/config',
                     materialRecommendation: true,
                     printerSelection: true,
                     costCalculation: true,
-                    printSettingsOptimization: true
+                    printSettingsOptimization: true,
+                    userDashboard: true,
+                    communityFeatures: true
                 },
                 supportedMaterials: [
                     'PLA', 'PETG', 'ABS', 'TPU', 'ASA', 'PC', 'PA', 

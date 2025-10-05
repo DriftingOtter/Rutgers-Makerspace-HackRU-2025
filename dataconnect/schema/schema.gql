@@ -1,0 +1,54 @@
+type User @table {
+  rutgersId: String!
+  email: String!
+  displayName: String!
+  phoneNumber: String
+  isStaff: Boolean
+}
+
+type Printer @table {
+  name: String!
+  model: String!
+  printerStatus: String!
+  createdAt: Timestamp!
+  location: String
+  printVolume: String
+  capabilities: [String]
+}
+
+type Material @table {
+  name: String!
+  type: String!
+  createdAt: Timestamp!
+  colors: [String]
+  costPerGram: Float
+  description: String
+}
+
+type PrintRequest @table {
+  requester: User!
+  modelFileName: String!
+  printStatus: String!
+  createdAt: Timestamp!
+  material: Material
+  color: String
+  notesFromUser: String
+  notesFromStaff: String
+  estimatedCost: Float
+  estimatedCompletionTime: Timestamp
+  assignedPrinter: Printer
+  fileDownloadUrl: String
+}
+
+type PrintJob @table {
+  printRequest: PrintRequest!
+  printer: Printer!
+  staff: User!
+  startTime: Timestamp!
+  jobStatus: String!
+  createdAt: Timestamp!
+  endTime: Timestamp
+  materialUsedWeight: Float
+  actualCost: Float
+  notes: String
+}
