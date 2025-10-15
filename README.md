@@ -1,7 +1,7 @@
 # Rutgers Makerspace HackRU 2025
 
 A comprehensive 3D printing management system with user authentication, community features, and AI-powered recommendations for Rutgers University Makerspace.
-
+cf_ai_
 ## 🚀 Quick Start
 
 ### Demo Setup (One Command)
