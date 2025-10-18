@@ -322,7 +322,7 @@ Built with ❤️ for HackRU 2025
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPL 3.0 License - see the [LICENSE](LICENSE) file for details.
 
 <div align="center">
   <sub>Made with passion at Rutgers University • HackRU 2025</sub>
