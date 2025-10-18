@@ -59,16 +59,16 @@ Traditional makerspace management systems are often disconnected, difficult to u
 
 ---
 
-## 🎬 Demo & Screenshots
+## 🎬 Demo & Screenshots (W.I.P)
 
 ### Dashboard Overview
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Screenshot)
+![Dashboard](#)
 
 ### AI Material Advisor
-![AI Advisor](https://via.placeholder.com/800x400?text=AI+Advisor+Screenshot)
+![AI Advisor](#)
 
 ### Community Platform
-![Community](https://via.placeholder.com/800x400?text=Community+Screenshot)
+![Community](#)
 
 ---
 
