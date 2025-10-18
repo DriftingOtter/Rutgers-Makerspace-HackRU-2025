@@ -1,233 +1,329 @@
-# Rutgers Makerspace HackRU 2025
+# Rutgers Makerspace - AI-Powered 3D Print Management Platform
 
-A comprehensive 3D printing management system with user authentication, community features, and AI-powered recommendations for Rutgers University Makerspace.
-cf_ai_
-## 🚀 Quick Start
+> **A modern, intelligent 3D printing management system that transforms the makerspace experience through AI-driven recommendations, community collaboration, and seamless user workflows.**
 
-### Demo Setup (One Command)
+Built for HackRU 2025 |
+
+---
+
+## 🎯 Overview
+
+Rutgers Makerspace is a comprehensive web application designed to streamline 3D printing workflows at Rutgers University. By combining cutting-edge AI technology with intuitive design, we've created a platform that makes 3D printing accessible, efficient, and collaborative for students, faculty, and makers of all skill levels.
+
+### The Problem We Solved
+Traditional makerspace management systems are often disconnected, difficult to use, and lack intelligent guidance for users unfamiliar with 3D printing. We built a solution that:
+- **Reduces barriers to entry** for new makers through AI-powered material recommendations
+- **Optimizes resource allocation** with intelligent print queue management
+- **Fosters community collaboration** through project sharing and knowledge exchange
+- **Provides transparency** with real-time cost estimation and print tracking
+
+---
+
+## ✨ Key Features
+
+### 🤖 **AI-Powered Intelligence**
+- **Google Gemini Integration** - Smart material advisor that recommends optimal materials (PLA, PETG, ABS, TPU) based on project requirements
+- **Automated Cost Estimation** - Real-time pricing calculations considering material, print time, and complexity
+- **Print Settings Optimization** - AI suggests ideal settings for different materials and printer types
+
+### 🔐 **Enterprise-Grade Authentication**
+- Firebase Authentication with email/password and Google OAuth
+- Secure session management and protected routes
+- Role-based access control for different user types
+- Seamless user experience with persistent login
+
+### 📊 **Personalized Dashboard**
+- **Real-time Statistics** - Track total requests, completed projects, and spending
+- **Print History** - Complete timeline of all your 3D printing projects
+- **Request Status Tracking** - Monitor prints from submission to completion
+- **Quick Actions** - Fast access to frequently used features
+
+### 🌐 **Community Platform**
+- **Public Project Sharing** - Share successful prints with the community
+- **Social Engagement** - Like, comment, and download community projects
+- **Knowledge Base** - Learn from others' successes and challenges
+- **Open Source Collaboration** - Foster innovation through shared resources
+
+### 🖨️ **Comprehensive Print Management**
+- Support for multiple printer types (FDM, SLA, Multi-material)
+- Material library with detailed specifications and recommendations
+- File upload and validation for common 3D formats
+- Queue management and priority scheduling
+- Automated notifications for print status updates
+
+### 💰 **Transparent Pricing**
+- Dynamic cost calculation based on material and print parameters
+- Pricing tiers for different user types (student, faculty, external)
+- Detailed cost breakdowns before submission
+- Budget tracking and spending analytics
+
+---
+
+## 🎬 Demo & Screenshots
+
+### Dashboard Overview
+![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Screenshot)
+
+### AI Material Advisor
+![AI Advisor](https://via.placeholder.com/800x400?text=AI+Advisor+Screenshot)
+
+### Community Platform
+![Community](https://via.placeholder.com/800x400?text=Community+Screenshot)
+
+---
+
+## 🏗️ Technical Architecture
+
+### **Frontend Stack**
+- **React.js** - Modern, component-based UI architecture
+- **Firebase SDK** - Seamless authentication and user management
+- **React Router v6** - Advanced routing with protected routes
+- **Responsive Design** - Mobile-first CSS3 with flexbox/grid
+
+### **Backend Stack**
+- **Node.js + Express** - High-performance REST API
+- **Google Gemini AI** - Advanced natural language processing for recommendations
+- **Winston Logger** - Comprehensive logging and monitoring
+- **Snowflake** - Scalable database integration (optional)
+
+### **Security & Performance**
+- JWT-based authentication with Firebase tokens
+- CORS configuration for secure cross-origin requests
+- Input validation and sanitization
+- Rate limiting on API endpoints
+- Optimized build process with code splitting
+
+---
+
+## 🚀 Quick Demo
+
+Get the application running in under 2 minutes:
+
+### **One-Command Setup**
 ```bash
-# Complete setup and start frontend for demo
-./setup.sh
+# Clone the repository
+git clone <repository-url>
+cd rutgers-makerspace
 
-# If you need the API running separately
-./start-api.sh
+# Automated setup and start
+./setup.sh && ./start-demo.sh
 ```
 
-### Development Setup
-For development with full configuration:
-```bash
-# Automated setup with prompts
-./old-scripts/setup-project.sh
-
-# Or follow manual setup in SETUP_INSTRUCTIONS.md
-```
-
-### Start the Application
-```bash
-# Start everything (after setup)
-./start-demo.sh
-
-# Or start individual services
-cd frontend && npm start  # Frontend only (port 8085)
-cd api && npm start       # API only (port 8080)
-```
-
-## 🌐 Application URLs
-
+The application will be available at:
 - **Frontend**: http://localhost:8085
 - **API**: http://localhost:8080
-- **API Documentation**: http://localhost:8080/api/config
+- **API Docs**: http://localhost:8080/api/config
 
-## ✨ Features
+### **Alternative Setup Methods**
 
-### 🔐 Authentication System
-- Firebase Authentication integration
-- Email/Password and Google OAuth sign-in
-- Protected routes and user management
-- Secure session handling
-
-### 📊 User Dashboard
-- Personal statistics and print history
-- Community print request sharing
-- Account management and settings
-- Real-time status tracking
-
-### 🤖 AI-Powered Features
-- Google Gemini integration for intelligent recommendations
-- Material advisor with smart suggestions
-- Print settings optimization
-- Cost estimation and pricing
-
-### 🖨️ 3D Printing Management
-- Multiple printer type support
-- Material recommendations (PLA, PETG, ABS, etc.)
-- Print queue management
-- File upload and processing
-
-### 🌐 Community Features
-- Public print request sharing
-- Community engagement (likes, downloads)
-- Open source project collaboration
-- Educational resource sharing
-
-## 🏗️ Project Structure
-
-```
-├── frontend/              # React.js Frontend
-│   ├── src/
-│   │   ├── pages/        # Page components
-│   │   ├── components/   # Reusable components
-│   │   ├── contexts/     # React contexts
-│   │   ├── firebase/     # Firebase configuration
-│   │   └── ...
-│   ├── package.json
-│   └── README.md
-├── api/                   # Node.js/Express API
-│   ├── src/
-│   │   ├── routes/       # API endpoints
-│   │   ├── controllers/  # Business logic
-│   │   ├── models/       # Data models
-│   │   ├── services/     # External services
-│   │   └── ...
-│   ├── package.json
-│   └── README.md
-├── start-all.sh          # Start both services
-├── start-frontend.sh     # Start frontend only
-├── start-api.sh          # Start API only
-└── README.md             # This file
-```
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **React.js** - User interface
-- **Firebase** - Authentication and user management
-- **React Router** - Navigation and routing
-- **CSS3** - Styling and responsive design
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **Google Gemini AI** - Intelligent recommendations
-- **Snowflake** - Database integration (optional)
-- **Winston** - Logging system
-
-### Development Tools
-- **ESLint** - Code linting
-- **Jest** - Testing framework
-- **Nodemon** - Development server
-
-## 🔧 Setup Instructions
-
-### 1. Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn
-- Firebase project (for authentication)
-
-### 2. Environment Configuration
+#### Using Individual Scripts
 ```bash
-# Frontend (.env)
-REACT_APP_FIREBASE_API_KEY=your_api_key
+# Setup with configuration prompts
+./old-scripts/setup-project.sh
+
+# Start frontend only
+./start-frontend.sh
+
+# Start API only
+./start-api.sh
+
+# Start both services
+./start-all.sh
+```
+
+#### Manual Setup
+```bash
+# 1. Install dependencies
+cd frontend && npm install
+cd ../api && npm install
+
+# 2. Configure environment variables (see below)
+cp frontend/.env.example frontend/.env
+cp api/.env.example api/.env
+
+# 3. Start services
+cd frontend && npm start  # Port 8085
+cd api && npm start       # Port 8080
+```
+
+---
+
+## ⚙️ Configuration
+
+### **Environment Variables**
+
+#### Frontend (`frontend/.env`)
+```env
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
 REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 REACT_APP_FIREBASE_PROJECT_ID=your_project_id
 REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 REACT_APP_FIREBASE_APP_ID=your_app_id
 REACT_APP_API_BASE_URL=http://localhost:8080
+```
 
-# API (.env)
-GEMINI_API_KEY=your_gemini_key
+#### Backend (`api/.env`)
+```env
+GEMINI_API_KEY=your_gemini_api_key
 PORT=8080
 NODE_ENV=development
+LOG_LEVEL=info
 ```
 
-### 3. Firebase Setup
-1. Create a Firebase project
-2. Enable Authentication (Email/Password + Google)
+### **Firebase Setup**
+1. Create a new Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable Authentication methods:
+   - Email/Password
+   - Google OAuth
 3. Add `localhost` to authorized domains
-4. Update frontend `.env` with your Firebase config
+4. Copy configuration values to `frontend/.env`
 
-### 4. Install Dependencies
-```bash
-# Install frontend dependencies
-cd frontend && npm install
+---
 
-# Install API dependencies
-cd ../api && npm install
+## 📚 API Documentation
+
+### **Authentication Endpoints**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/user/print-requests` | Fetch user's print history |
+| GET | `/api/user/stats` | Get user statistics |
+
+### **Print Management**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/print-request` | Submit new print request |
+| GET | `/api/materials` | List available materials |
+| GET | `/api/printers` | List available printers |
+| POST | `/api/estimate-cost` | Calculate print cost |
+
+### **Community Features**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/community/print-requests` | Browse public projects |
+| POST | `/api/community/like` | Like a project |
+| POST | `/api/community/share` | Share a project |
+
+### **System**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | API health check |
+| GET | `/api/config` | System configuration |
+
+---
+
+## 📁 Project Structure
+```
+rutgers-makerspace/
+├── frontend/                    # React application
+│   ├── src/
+│   │   ├── pages/              # Page components (Dashboard, Login, etc.)
+│   │   ├── components/         # Reusable UI components
+│   │   ├── contexts/           # React Context providers
+│   │   ├── firebase/           # Firebase configuration
+│   │   └── utils/              # Helper functions
+│   ├── public/                 # Static assets
+│   └── package.json
+│
+├── api/                         # Express.js backend
+│   ├── src/
+│   │   ├── routes/             # API route definitions
+│   │   ├── controllers/        # Business logic
+│   │   ├── models/             # Data models
+│   │   ├── services/           # External service integrations
+│   │   └── middleware/         # Custom middleware
+│   └── package.json
+│
+├── setup.sh                     # Automated setup script
+├── start-demo.sh                # Quick start script
+├── start-all.sh                 # Start both services
+└── README.md                    # This file
 ```
 
-## 📚 API Endpoints
+---
 
-### Authentication
-- `GET /api/user/print-requests` - User's print history
-- `GET /api/community/print-requests` - Public community requests
+## 🎯 Use Cases
 
-### 3D Printing
-- `POST /api/print-request` - Process print request
-- `GET /api/materials` - Available materials
-- `GET /api/printers` - Available printers
-- `GET /api/pricing` - Pricing information
-- `POST /api/estimate-cost` - Cost estimation
+### For Students
+- Submit print requests with AI-guided material selection
+- Track project progress and costs
+- Learn from community-shared projects
+- Build portfolio of completed prints
 
-### System
-- `GET /api/health` - Health check
-- `GET /api/config` - API configuration
+### For Faculty
+- Manage classroom printing needs
+- Monitor departmental print usage and costs
+- Share educational resources with students
+- Access priority printing services
 
-## 🎯 User Guide
+### For Makerspace Staff
+- Efficient queue management
+- Real-time printer utilization tracking
+- User activity monitoring
+- Automated cost recovery
 
-### Getting Started
-1. **Sign Up**: Create an account with email/password or Google
-2. **Dashboard**: Access your personal dashboard with statistics
-3. **Create Request**: Submit a new 3D printing request
-4. **Community**: Browse and share public print requests
-5. **History**: View your complete print request history
+---
 
-### Dashboard Features
-- **Statistics**: Total requests, completed projects, spending
-- **Recent Activity**: Quick view of your latest requests
-- **Community**: Discover and share projects
-- **Account Management**: View and manage your profile
+## 🔐 Security Features
 
-## 🔒 Security Features
+- **Authentication**: Firebase-powered secure authentication with multiple providers
+- **Authorization**: Protected API endpoints with token verification
+- **Data Privacy**: User data isolation and secure storage
+- **Input Validation**: Comprehensive sanitization of all user inputs
+- **Rate Limiting**: Protection against abuse and DOS attacks
+- **Audit Logging**: Complete request/response logging for compliance
 
-- Firebase Authentication with secure token handling
-- Protected API endpoints with user verification
-- CORS configuration for cross-origin requests
-- Input validation and sanitization
-- Rate limiting and request logging
+---
 
-## 🚀 Deployment
+## 🚀 Deployment Options
 
-### Development
+### **Development**
 ```bash
-./start-all.sh
+./start-all.sh  # Local development with hot reload
 ```
 
-### Production
-1. Configure production environment variables
-2. Set up Firebase production project
-3. Configure Snowflake database (optional)
-4. Deploy frontend to hosting service
-5. Deploy API to cloud platform
+### **Production**
+- **Frontend**: Deploy to Vercel, Netlify, or AWS S3 + CloudFront
+- **Backend**: Deploy to AWS EC2, Google Cloud Run, or Heroku
+- **Database**: Connect to Snowflake or PostgreSQL for persistence
+- **CI/CD**: GitHub Actions workflow included for automated deployment
 
-## 📖 Documentation
+---
 
-- [Frontend Documentation](./frontend/README.md)
-- [API Documentation](./api/README.md)
-- [Firebase Setup Guide](./frontend/FIREBASE_SETUP.md)
+## 📈 Future Enhancements
+
+- [ ] Mobile applications (iOS/Android)
+- [ ] Real-time printer status monitoring with IoT integration
+- [ ] Advanced analytics dashboard with data visualization
+- [ ] Multi-language support for international users
+- [ ] Integration with CAD software for direct uploads
+- [ ] Machine learning for print failure prediction
+- [ ] Automated print scheduling optimization
+
+---
 
 ## 🤝 Contributing
 
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 👥 Team
+
+Built with ❤️ for HackRU 2025
+
+---
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🏫 About Rutgers Makerspace
-
-This project was developed for HackRU 2025 to enhance the Rutgers University Makerspace experience with modern web technologies and AI-powered features.
+<div align="center">
+  <sub>Made with passion at Rutgers University • HackRU 2025</sub>
+</div>
